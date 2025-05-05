@@ -1,23 +1,14 @@
-"use client";
+import ForgotPasswordForm from "@/components/forgot-password-form"
+import Link from "next/link"
 
-import Link from "next/link";
-import LoginForm from "@/components/login-form";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-
-export default function Home() {
-  const handleLoginSuccess = () => {
-    toast.success("User Authenticated!");
-  };
+export default function ForgotPasswordPage() {
   return (
     <div className="min-vh-100 d-flex flex-column flex-md-row">
       {/* Left side - Image/Branding */}
       <div className="d-none d-md-flex col-md-6 bg-primary text-white align-items-center justify-content-center p-4">
         <div className="max-width-md">
           <h1 className="display-4 fw-bold mb-4">Tyakkai Social</h1>
-          <p className="fs-4 mb-5">
-            AI-powered social media management for small businesses
-          </p>
+          <p className="fs-4 mb-5">AI-powered social media management for small businesses</p>
           <div className="d-flex flex-column gap-4">
             <div className="d-flex align-items-center">
               <div className="bg-white bg-opacity-25 p-2 rounded-circle me-3">
@@ -31,17 +22,13 @@ export default function Home() {
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="feather feather-calendar-clock"
+                  className="feather feather-lock"
                 >
-                  <path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h7.5" />
-                  <path d="M16 2v4" />
-                  <path d="M8 2v4" />
-                  <path d="M3 10h18" />
-                  <circle cx="18" cy="18" r="4" />
-                  <path d="M18 16.5V18l1 1" />
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                 </svg>
               </div>
-              <span>Schedule posts across multiple platforms</span>
+              <span>Secure password recovery</span>
             </div>
             <div className="d-flex align-items-center">
               <div className="bg-white bg-opacity-25 p-2 rounded-circle me-3">
@@ -55,15 +42,12 @@ export default function Home() {
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="feather feather-bar-chart-3"
+                  className="feather feather-shield"
                 >
-                  <path d="M3 3v18h18" />
-                  <path d="M18 17V9" />
-                  <path d="M13 17V5" />
-                  <path d="M8 17v-3" />
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                 </svg>
               </div>
-              <span>Detailed engagement analytics</span>
+              <span>Protected account access</span>
             </div>
             <div className="d-flex align-items-center">
               <div className="bg-white bg-opacity-25 p-2 rounded-circle me-3">
@@ -77,43 +61,40 @@ export default function Home() {
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="feather feather-hash"
+                  className="feather feather-mail"
                 >
-                  <line x1="4" x2="20" y1="9" y2="9" />
-                  <line x1="4" x2="20" y1="15" y2="15" />
-                  <line x1="10" x2="8" y1="3" y2="21" />
-                  <line x1="16" x2="14" y1="3" y2="21" />
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                  <polyline points="22,6 12,13 2,6"></polyline>
                 </svg>
               </div>
-              <span>AI-powered hashtag suggestions</span>
+              <span>Email verification system</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Right side - Login Form */}
+      {/* Right side - Forgot Password Form */}
       <div className="col-12 col-md-6 d-flex align-items-center justify-content-center p-4 bg-light">
-        <div
-          className="card border-0 shadow-sm w-100"
-          style={{ maxWidth: "450px" }}
-        >
-          <ToastContainer />
+        <div className="card border-0 shadow-sm w-100" style={{ maxWidth: "450px" }}>
           <div className="card-body p-4">
             <div className="text-center mb-4">
-              <h2 className="h3 fw-bold text-dark">Welcome Back</h2>
-              <p className="text-muted">Sign in to manage your social media</p>
+              <div
+                className="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded-circle mb-3"
+                style={{ width: "60px", height: "60px" }}
+              >
+                <span className="fs-4 fw-bold">TS</span>
+              </div>
+              <h2 className="h3 fw-bold text-dark">Forgot Password</h2>
+              <p className="text-muted">Enter your email address and we'll send you a link to reset your password.</p>
             </div>
 
-            <LoginForm onLoginSuccess={handleLoginSuccess} />
+            <ForgotPasswordForm />
 
             <div className="mt-4 text-center text-muted">
               <p>
-                Don't have an account?{" "}
-                <Link
-                  href="/signup"
-                  className="text-primary text-decoration-none"
-                >
-                  Sign up
+                Remember your password?{" "}
+                <Link href="/" className="text-primary text-decoration-none">
+                  Back to login
                 </Link>
               </p>
             </div>
@@ -121,5 +102,5 @@ export default function Home() {
         </div>
       </div>
     </div>
-  );
+  )
 }

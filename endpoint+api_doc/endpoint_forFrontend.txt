@@ -1,0 +1,410 @@
+1. For Dashboard
+http://localhost:8000/api/dashboard/stats
+{
+    totalFollowers: "17K",
+    followerGrowth: "12%",
+    engagementRate: "4.2%",
+    engagementGrowth: "0.8%",
+    totalPosts: "237",
+    newPosts: "24",
+    scheduledPosts: "12",
+    nextPostTime: "3 hours",
+}
+
+http://localhost:8000/api/platforms
+[
+    {
+      id: 1,
+      name: "Facebook",
+      connected: true,
+      followers: "5.2K",
+      engagement: "3.8%",
+      posts: 42,
+      icon: "facebook",
+    },
+    {
+      id: 2,
+      name: "Instagram",
+      connected: true,
+      followers: "8.7K",
+      engagement: "5.2%",
+      posts: 67,
+      icon: "instagram",
+    },
+    {
+      id: 3,
+      name: "Twitter",
+      connected: true,
+      followers: "3.1K",
+      engagement: "2.7%",
+      posts: 128,
+      icon: "twitter",
+    },
+]
+
+http://localhost:8000/api/posts/upcoming
+[
+    {
+      id: 1,
+      platform: "Instagram",
+      date: "Today, 3:00 PM",
+      content:
+        "New product launch! Check out our latest social media management features...",
+      media: [
+        {
+          type: "image",
+          url: "https://via.placeholder.com/300x200?text=Product+Launch",
+        },
+      ],
+    },
+    {
+      id: 2,
+      platform: "Facebook",
+      date: "Tomorrow, 10:00 AM",
+      content:
+        "Tips for small businesses to improve their social media presence...",
+      media: [],
+    },
+    {
+      id: 3,
+      platform: "Twitter",
+      date: "May 20, 2:30 PM",
+      content:
+        "Join our webinar on effective hashtag strategies for small businesses...",
+      media: [],
+    },
+]
+
+
+2. For paltform connection like facebook, instagram and x
+connect-platform/${platform}
+
+
+3. for schedule post page
+http://localhost:8000/api/posts/scheduled
+
+[{
+      id: 1,
+      content: "Check out our new product line! #newproduct #launch",
+      platforms: ["Instagram"],
+      scheduled_datetime: "2023-05-15T14:30:00Z",
+      status: "scheduled",
+      campaign: "Product Launch",
+      media_count: 1,
+      media: [
+        {
+          type: "image",
+          url: "https://via.placeholder.com/300x200?text=New+Product",
+        },
+      ],
+    },
+    {
+      id: 2,
+      content: "We're excited to announce our summer sale! 30% off all products.",
+      platforms: ["Facebook", "Twitter"],
+      scheduled_datetime: "2023-05-18T10:15:00Z",
+      status: "scheduled",
+      campaign: "Summer Sale",
+      media_count: 0,
+      media: [],
+    }]
+
+await axios.delete(`http://localhost:8000/api/posts/${postId}`, {
+     headers: { Authorization: `Bearer ${token}` },
+ })
+
+ // Create new post
+response = await axios.post("http://localhost:8000/api/posts", postData, {
+    headers: {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "multipart/form-data",
+    },
+
+post data{
+    content: "",
+    platforms: [],
+    scheduledDate: "",
+    scheduledTime: "",
+    isRecurring: false,
+    recurringType: "weekly",
+    recurringDays: [],
+    recurringEndDate: "",
+    campaign: "",
+  } , 
+  
+response = await axios.put(`http://localhost:8000/api/posts/${editPost.id}`, postData, {
+    headers: {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "multipart/form-data",
+    },
+})
+
+const response = await axios.get("http://localhost:8000/api/campaigns", {
+    headers: { Authorization: `Bearer ${token}` },
+})
+expected response:
+[
+    { id: 1, name: "Product Launch" },
+    { id: 2, name: "Summer Sale" },
+    { id: 3, name: "Webinar" },
+    { id: 4, name: "Tips & Tricks" },
+    { id: 5, name: "Customer Stories" },
+    { id: 6, name: "Weekend Promo" },
+]
+
+4. Analytics page
+const response = await axios.get(
+    `http://localhost:8000/api/analytics?timeRange=${timeRange}&platform=${platform}`,
+    {
+        headers: { Authorization: `Bearer ${token}` },
+    },
+)
+
+expected response:
+{
+    summary: {
+      totalEngagement: 12547,
+      engagementGrowth: 8.3,
+      impressions: 98450,
+      impressionsGrowth: 12.7,
+      clicks: 3245,
+      clicksGrowth: 5.2,
+      shares: 876,
+      sharesGrowth: 15.8,
+    },
+    platforms: {
+      facebook: {
+        name: "Facebook",
+        color: "#4267B2",
+        engagement: 4235,
+        engagementGrowth: 6.2,
+        impressions: 35670,
+        impressionsGrowth: 9.5,
+        clicks: 1245,
+        clicksGrowth: 3.8,
+        shares: 325,
+        sharesGrowth: 12.4,
+      },
+      instagram: {
+        name: "Instagram",
+        color: "#8a3ab9",
+        engagement: 6890,
+        engagementGrowth: 10.5,
+        impressions: 42780,
+        impressionsGrowth: 15.2,
+        clicks: 1560,
+        clicksGrowth: 7.3,
+        shares: 421,
+        sharesGrowth: 18.9,
+      },
+      twitter: {
+        name: "Twitter",
+        color: "#1DA1F2",
+        engagement: 1422,
+        engagementGrowth: 4.8,
+        impressions: 20000,
+        impressionsGrowth: 8.1,
+        clicks: 440,
+        clicksGrowth: 2.5,
+        shares: 130,
+        sharesGrowth: 9.7,
+      },
+    },
+    topPosts: [
+      {
+        id: 1,
+        platform: "Instagram",
+        content: "Check out our new product line! #newproduct #launch",
+        date: "2023-05-10T14:30:00Z",
+        engagement: 1245,
+        impressions: 8760,
+        clicks: 320,
+        shares: 87,
+      },
+      {
+        id: 2,
+        platform: "Facebook",
+        content: "We're excited to announce our summer sale! 30% off all products.",
+        date: "2023-05-05T10:15:00Z",
+        engagement: 980,
+        impressions: 7540,
+        clicks: 290,
+        shares: 65,
+      },
+      {
+        id: 3,
+        platform: "Twitter",
+        content: "Join our webinar on social media strategies for small businesses. Register now!",
+        date: "2023-05-12T16:45:00Z",
+        engagement: 750,
+        impressions: 5230,
+        clicks: 210,
+        shares: 42,
+      },
+    ],
+    engagementByDay: [
+      { date: "2023-04-15", facebook: 120, instagram: 180, twitter: 45 },
+      { date: "2023-04-16", facebook: 135, instagram: 195, twitter: 50 },
+      { date: "2023-04-17", facebook: 115, instagram: 210, twitter: 48 },
+      { date: "2023-04-18", facebook: 140, instagram: 225, twitter: 52 },
+      { date: "2023-04-19", facebook: 155, instagram: 240, twitter: 55 },
+      { date: "2023-04-20", facebook: 170, instagram: 255, twitter: 60 },
+      { date: "2023-04-21", facebook: 160, instagram: 270, twitter: 58 },
+      { date: "2023-04-22", facebook: 175, instagram: 285, twitter: 62 },
+      { date: "2023-04-23", facebook: 190, instagram: 300, twitter: 65 },
+      { date: "2023-04-24", facebook: 180, instagram: 315, twitter: 70 },
+      { date: "2023-04-25", facebook: 195, instagram: 330, twitter: 68 },
+      { date: "2023-04-26", facebook: 210, instagram: 345, twitter: 72 },
+      { date: "2023-04-27", facebook: 200, instagram: 360, twitter: 75 },
+      { date: "2023-04-28", facebook: 215, instagram: 375, twitter: 78 },
+      { date: "2023-04-29", facebook: 230, instagram: 390, twitter: 80 },
+      { date: "2023-04-30", facebook: 220, instagram: 405, twitter: 82 },
+      { date: "2023-05-01", facebook: 235, instagram: 420, twitter: 85 },
+      { date: "2023-05-02", facebook: 250, instagram: 435, twitter: 88 },
+      { date: "2023-05-03", facebook: 240, instagram: 450, twitter: 90 },
+      { date: "2023-05-04", facebook: 255, instagram: 465, twitter: 92 },
+      { date: "2023-05-05", facebook: 270, instagram: 480, twitter: 95 },
+      { date: "2023-05-06", facebook: 260, instagram: 495, twitter: 98 },
+      { date: "2023-05-07", facebook: 275, instagram: 510, twitter: 100 },
+      { date: "2023-05-08", facebook: 290, instagram: 525, twitter: 102 },
+      { date: "2023-05-09", facebook: 280, instagram: 540, twitter: 105 },
+      { date: "2023-05-10", facebook: 295, instagram: 555, twitter: 108 },
+      { date: "2023-05-11", facebook: 310, instagram: 570, twitter: 110 },
+      { date: "2023-05-12", facebook: 300, instagram: 585, twitter: 112 },
+      { date: "2023-05-13", facebook: 315, instagram: 600, twitter: 115 },
+      { date: "2023-05-14", facebook: 330, instagram: 615, twitter: 118 },
+    ],
+  }
+
+
+5. content calendar page 
+const postsResponse = await axios.get(
+    `http://localhost:8000/api/posts/calendar?year=${year}&month=${month}&view=${view}`,
+    {
+    headers: { Authorization: `Bearer ${token}` },
+    },
+)
+
+response :
+[
+    {
+      id: 1,
+      content: "Check out our new product line! #newproduct #launch",
+      platforms: ["instagram"],
+      scheduled_datetime: new Date(currentDate.getFullYear(), currentDate.getMonth(), 15, 14, 30).toISOString(),
+      status: "scheduled",
+      campaign: "Product Launch",
+      media: [
+        {
+          type: "image",
+          url: "https://via.placeholder.com/300x200?text=New+Product",
+        },
+      ],
+    },
+    {
+      id: 2,
+      content: "We're excited to announce our summer sale! 30% off all products.",
+      platforms: ["facebook", "twitter"],
+      scheduled_datetime: new Date(currentDate.getFullYear(), currentDate.getMonth(), 18, 10, 15).toISOString(),
+      status: "scheduled",
+      campaign: "Summer Sale",
+      media: [],
+    },
+    {
+      id: 3,
+      content: "Join our webinar on social media strategies for small businesses. Register now!",
+      platforms: ["twitter", "linkedin"],
+      scheduled_datetime: new Date(currentDate.getFullYear(), currentDate.getMonth(), 20, 16, 45).toISOString(),
+      status: "scheduled",
+      campaign: "Webinar",
+      media: [],
+    }
+]
+
+await axios.put(`http://localhost:8000/api/posts/${draggedPost.id}`, updatedPost, {
+    headers: { Authorization: `Bearer ${token}` },
+})
+
+5. hashtag suggestions page
+
+const response = await axios.post("http://localhost:8000/api/hashtags/generate",
+    {
+    content,
+    platform,
+    industry,
+    count,
+    },
+    {
+    headers: { Authorization: `Bearer ${token}` },
+    },
+)
+
+response
+[
+    "#socialmedia",
+    "#digitalmarketing",
+    "#marketing",
+    "#socialmediamarketing",
+    "#business",
+    "#instagram",
+    "#branding",
+    "#contentmarketing",
+    "#entrepreneur",
+    "#marketingtips",
+    "#socialmediatips",
+    "#smallbusiness",
+    "#advertising",
+    "#marketingstrategy",
+    "#onlinemarketing",
+]
+
+6. Notifications
+const response = await axios.get(`http://localhost:8000/api/notifications?filter=${filter}`, {
+    headers: { Authorization: `Bearer ${token}` },
+})
+
+[
+    {
+      id: 1,
+      type: "post_published",
+      message: "Your post on Facebook has been published successfully",
+      created_at: "2023-05-18T10:30:00Z",
+      is_read: false,
+    },
+    {
+      id: 2,
+      type: "engagement_update",
+      message: "Your Instagram post received 50+ likes in the last hour",
+      created_at: "2023-05-17T15:45:00Z",
+      is_read: false,
+    },
+    {
+      id: 3,
+      type: "scheduled_reminder",
+      message: "You have 3 posts scheduled for tomorrow",
+      created_at: "2023-05-17T09:15:00Z",
+      is_read: false,
+    },
+    {
+      id: 4,
+      type: "platform_connected",
+      message: "Twitter account successfully connected",
+      created_at: "2023-05-16T14:20:00Z",
+      is_read: true,
+    },
+    {
+      id: 5,
+      type: "post_failed",
+      message: "Failed to publish post on LinkedIn. Please try again.",
+      created_at: "2023-05-15T11:10:00Z",
+      is_read: true,
+    },
+]
+
+http://localhost:8000/api/notifications/${id}/read
+
+http://localhost:8000/api/notifications/read-all
+
+http://localhost:8000/api/notifications/${id}
+
+http://localhost:8000/api/notifications/delete-all

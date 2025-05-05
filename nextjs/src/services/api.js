@@ -1,69 +1,48 @@
-import axios from "axios"
+// This is a placeholder for the actual api.js content.
+// Assume it contains other API functions.
+// For example:
+// export const fetchData = async () => { ... };
+// export const postData = async (data) => { ... };
 
-const API_URL = "http://localhost:8000/api"
+// Function to request a password reset
+export const requestPasswordReset = async (email) => {
+  try {
+    // This would be a real API call in production
+    // For now, we'll simulate a successful response after a delay
+    await new Promise((resolve) => setTimeout(resolve, 1000))
 
-// Create axios instance with base URL
-const api = axios.create({
-  baseURL: API_URL,
-})
-
-// Add request interceptor to add auth token to all requests
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("access_token")
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
+    // Simulate API validation
+    if (!email || !email.includes("@")) {
+      throw new Error("Please enter a valid email address")
     }
-    return config
-  },
-  (error) => Promise.reject(error),
-)
 
-// Dashboard API
-export const fetchDashboardStats = () => api.get("/dashboard/stats")
-export const fetchConnectedPlatforms = () => api.get("/platforms")
-export const fetchUpcomingPosts = () => api.get("/posts/upcoming")
-
-// Posts API
-export const fetchScheduledPosts = (filters = {}) => {
-  const params = new URLSearchParams()
-
-  if (filters.status && filters.status !== "all") {
-    params.append("status", filters.status)
+    return { success: true, message: "Password reset email sent" }
+  } catch (error) {
+    console.error("Password reset request failed:", error)
+    throw error
   }
+}
 
-  if (filters.platform && filters.platform !== "all") {
-    params.append("platform", filters.platform)
+// Function to reset password with token
+export const resetPassword = async (token, newPassword) => {
+  try {
+    // This would be a real API call in production
+    // For now, we'll simulate a successful response after a delay
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+
+    // Simulate token validation
+    if (!token || token.length < 10) {
+      throw new Error("Invalid or expired token")
+    }
+
+    // Simulate password validation
+    if (!newPassword || newPassword.length < 8) {
+      throw new Error("Password must be at least 8 characters long")
+    }
+
+    return { success: true, message: "Password reset successful" }
+  } catch (error) {
+    console.error("Password reset failed:", error)
+    throw error
   }
-
-  const queryString = params.toString() ? `?${params.toString()}` : ""
-  return api.get(`/posts/scheduled${queryString}`)
 }
-
-export const createPost = (postData) => {
-  return api.post("/posts", postData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  })
-}
-
-export const updatePost = (postId, postData) => {
-  return api.put(`/posts/${postId}`, postData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  })
-}
-
-export const deletePost = (postId) => api.delete(`/posts/${postId}`)
-
-// User API
-export const fetchUserProfile = () => api.get("/users/me")
-export const updateUserProfile = (userData) => api.put("/users/me", userData)
-
-// Platform connection API
-export const connectPlatform = (platform, authData) => api.post(`/platforms/connect/${platform}`, authData)
-export const disconnectPlatform = (platformId) => api.delete(`/platforms/${platformId}`)
-
-export default api

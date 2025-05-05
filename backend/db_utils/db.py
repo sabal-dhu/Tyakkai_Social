@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, String, Integer, DateTime
+from sqlalchemy import create_engine, Column, String, Integer, DateTime, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
@@ -27,6 +27,18 @@ class TokenLog(Base):
     access_token = Column(String, nullable=False)
     user_email = Column(String, nullable=False)
     session_id = Column(String, nullable=False)
+
+# Define users table for registration data
+class User(Base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    email = Column(String, unique=True, nullable=False)
+    password_hash = Column(String, nullable=False)
+    name = Column(String, nullable=False)
+    company_name = Column(String, nullable=True)
+    role = Column(String, nullable=False, default="editor")  # Default role is "editor"
+    created_at = Column(DateTime, server_default=func.now())  # Auto-set creation time
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())  # Auto-set update time
 
 # Create tables if they don't exist
 Base.metadata.create_all(bind=engine)

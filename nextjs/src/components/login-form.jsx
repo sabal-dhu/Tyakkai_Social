@@ -1,65 +1,88 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import axios from "axios"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import api from "@/api";
 
-export default function LoginForm() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState("")
-  const router = useRouter()
+export default function LoginForm({ onLoginSuccess }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const router = useRouter();
 
   const handleEmailLogin = async (e) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError("")
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
 
     try {
       // Replace with your actual API endpoint
-      const response = await axios.post("http://localhost:8000/api/login", {
+      const response = await api.post("/login", {
         email,
         password,
-      })
+      });
 
       if (response.data.access_token) {
         // Store the token in localStorage or a secure cookie
-        localStorage.setItem("access_token", response.data.access_token)
-        router.push("/dashboard")
+        localStorage.setItem("access_token", response.data.access_token);
+
+        // Trigger the onLoginSuccess callback
+        if (onLoginSuccess) {
+          onLoginSuccess();
+        }
+
+        setTimeout(() => {
+          router.push("/dashboard");
+        }, 1500);
       }
     } catch (err) {
-      console.error("Login error:", err)
-      setError("Invalid email or password. Please try again.")
+      console.error("Login error:", err);
+      setError("Invalid email or password. Please try again.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
+
+  // const handleGoogleLogin = async () => {
+  //   setIsLoading(true)
+  //   setError("")
+
+  //   try {
+  //     // In a real implementation, you would redirect to your backend's Google OAuth endpoint
+  //     // For example: window.location.href = 'http://localhost:8000/api/auth/google'
+
+  //     // For this example, we'll simulate the OAuth flow
+  //     // In a real app, after Google redirects back to your app, you'd handle the token
+
+  //     // Simulating successful Google login for demonstration
+  //     setTimeout(() => {
+  //       // Simulate receiving a token from the backend
+  //       const mockToken = "mock-google-oauth-token"
+  //       localStorage.setItem("access_token", mockToken)
+  //       router.push("/dashboard")
+  //     }, 1500)
+  //   } catch (err) {
+  //     console.error("Google login error:", err)
+  //     setError("Failed to login with Google. Please try again.")
+  //     setIsLoading(false)
+  //   }
+  // }
 
   const handleGoogleLogin = async () => {
-    setIsLoading(true)
-    setError("")
+    setIsLoading(true);
+    setError("");
 
     try {
-      // In a real implementation, you would redirect to your backend's Google OAuth endpoint
-      // For example: window.location.href = 'http://localhost:8000/api/auth/google'
-
-      // For this example, we'll simulate the OAuth flow
-      // In a real app, after Google redirects back to your app, you'd handle the token
-
-      // Simulating successful Google login for demonstration
-      setTimeout(() => {
-        // Simulate receiving a token from the backend
-        const mockToken = "mock-google-oauth-token"
-        localStorage.setItem("access_token", mockToken)
-        router.push("/dashboard")
-      }, 1500)
+      // Redirect the user to the backend's Google OAuth endpoint
+      window.location.href = "http://localhost:8000/oauth/google/login";
     } catch (err) {
-      console.error("Google login error:", err)
-      setError("Failed to login with Google. Please try again.")
-      setIsLoading(false)
+      console.error("Google login error:", err);
+      setError("Failed to login with Google. Please try again.");
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div>
@@ -90,9 +113,12 @@ export default function LoginForm() {
             <label htmlFor="password" className="form-label">
               Password
             </label>
-            <a href="#" className="text-decoration-none small">
+            <Link
+              href="/forgot-password"
+              className="text-decoration-none small"
+            >
               Forgot password?
-            </a>
+            </Link>
           </div>
           <input
             id="password"
@@ -105,10 +131,18 @@ export default function LoginForm() {
           />
         </div>
 
-        <button type="submit" className="btn btn-primary w-100 py-2" disabled={isLoading}>
+        <button
+          type="submit"
+          className="btn btn-primary w-100 py-2"
+          disabled={isLoading}
+        >
           {isLoading ? (
             <>
-              <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              <span
+                className="spinner-border spinner-border-sm me-2"
+                role="status"
+                aria-hidden="true"
+              ></span>
               Signing in...
             </>
           ) : (
@@ -120,7 +154,9 @@ export default function LoginForm() {
       <div className="position-relative my-4">
         <hr />
         <div className="position-absolute top-50 start-50 translate-middle px-3 bg-light">
-          <span className="text-muted small text-uppercase">Or continue with</span>
+          <span className="text-muted small text-uppercase">
+            Or continue with
+          </span>
         </div>
       </div>
 
@@ -152,5 +188,5 @@ export default function LoginForm() {
         Continue with Google
       </button>
     </div>
-  )
+  );
 }
