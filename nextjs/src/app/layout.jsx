@@ -1,13 +1,12 @@
-import { Inter } from "next/font/google"
-import "./globals.css"
+import { Inter } from "next/font/google";
+import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] })
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   title: "Tyakkai Social - Social Media Management",
   description: "AI-powered social media management for small businesses",
-    generator: 'v0.dev'
-}
+};
 
 export default function RootLayout({ children }) {
   return (
@@ -20,6 +19,31 @@ export default function RootLayout({ children }) {
           integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
           crossOrigin="anonymous"
         />
+        {/* Make sure our custom CSS loads AFTER Bootstrap to override it */}
+        <style>{`
+          :root {
+            --bs-primary: #6a22c5 !important;
+            --bs-primary-rgb: 106, 34, 197 !important;
+          }
+          .bg-primary {
+            background-color: #6a22c5 !important;
+          }
+          .text-primary {
+            color: #6a22c5 !important;
+          }
+          .btn-primary {
+            background-color: #6a22c5 !important;
+            border-color: #6a22c5 !important;
+          }
+          .btn-outline-primary {
+            color: #6a22c5 !important;
+            border-color: #6a22c5 !important;
+          }
+          .btn-outline-primary:hover {
+            background-color: #6a22c5 !important;
+            color: white !important;
+          }
+        `}</style>
       </head>
       <body className={inter.className}>
         {children}
@@ -32,5 +56,5 @@ export default function RootLayout({ children }) {
         ></script>
       </body>
     </html>
-  )
+  );
 }
