@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Query, HTTPException, status, Request, Cookie, Depends
+from fastapi import APIRouter, Query, HTTPException, status, Request, Cookie, Depends, Header
 from authlib.integrations.starlette_client import OAuth
 from starlette.config import Config
 from fastapi.responses import JSONResponse
@@ -401,15 +401,16 @@ def get_current_user(token: str, db: Session = Depends(get_db)) -> dict:
         # Decode the JWT token
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         sub = payload.get("sub")
+        email = payload.get("email")  # For OAuth users
+        role = payload.get("role")   # For password-auth users
+
         if not sub:
             raise credentials_exception
+
         
-        print("====payload", payload)
-        print("====sub", sub)
-        # Check if the user is an email/password user
-        if sub.startswith("email:"):
-            email = sub.split("email:")[1]
-            user = db.query(User).filter(User.email == email).first()
+        # Check if the user is an email/password user (role exists in payload)
+        if role:
+            user = db.query(User).filter(User.email == sub).first()
             if not user:
                 raise credentials_exception
             return {
@@ -422,10 +423,9 @@ def get_current_user(token: str, db: Session = Depends(get_db)) -> dict:
                 "updated_at": user.updated_at,
             }
 
-        # Check if the user is an OAuth user
-        elif sub.startswith("oauth:"):
-            oauth_user_id = sub.split("oauth:")[1]
-            oauth_user = db.query(UserLog).filter(UserLog.user_id == oauth_user_id).first()
+        # Check if the user is an OAuth user (email exists in payload)
+        elif email:
+            oauth_user = db.query(UserLog).filter(UserLog.user_id == sub).first()
             if not oauth_user:
                 raise credentials_exception
             return {
@@ -438,24 +438,24 @@ def get_current_user(token: str, db: Session = Depends(get_db)) -> dict:
                 "last_accessed": oauth_user.last_accessed,
             }
 
-        # If the sub field is invalid
+        # If neither role nor email exists, raise an exception
         else:
             raise credentials_exception
 
     except JWTError:
         raise credentials_exception
-    
-from fastapi import Header
 
-@router.get("/api/users/me", response_model=dict)
+@router.get("/users/me", response_model=dict)
 async def get_user_data(authorization: str = Header(...), db: Session = Depends(get_db)):
     """
     Receives the access token from the frontend via the Authorization header,
     validates it, and fetches user data.
     """
+    if not authorization:
+        raise HTTPException(status_code=400, detail="Authorization header is missing")
+    
     if not authorization.startswith("Bearer "):
         raise HTTPException(status_code=400, detail="Invalid Authorization header")
-    print("====authorization", authorization)
+    
     token = authorization.split("Bearer ")[1]
-    print("====token", token)
     return get_current_user(token, db)

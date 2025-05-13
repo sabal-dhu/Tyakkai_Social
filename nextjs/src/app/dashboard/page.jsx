@@ -1,7 +1,10 @@
-
+import DashboardLayout from "@/components/dashboard-layout"
+import DashboardOverview from "@/components/dashboard-overview"
 
 export default function DashboardPage() {
   return (
-    <h1>This is dashboard</h1>
+    <DashboardLayout>
+      <DashboardOverview />
+    </DashboardLayout>
   )
 }

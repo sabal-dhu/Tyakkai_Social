@@ -1,0 +1,40 @@
+/* Custom styles for dashboard */
+.bg-purple {
+  background-color: #8a3ab9;
+}
+
+/* Fix for sidebar height */
+.vh-100 {
+  height: 100vh;
+}
+
+/* Ensure content doesn't overflow */
+.overflow-auto {
+  overflow: auto;
+}
+
+/* Active nav link styling */
+.nav-link.active {
+  background-color: rgba(var(--bs-primary-rgb), 0.1);
+  color: var(--bs-primary);
+  font-weight: 500;
+}
+
+.nav-link {
+  color: #495057;
+  border-radius: 0.25rem;
+}
+
+.nav-link:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Card hover effect */
+.card {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
+}

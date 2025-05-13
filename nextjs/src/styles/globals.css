@@ -2,85 +2,93 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-}
-
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
+    --foreground: 222.2 84% 4.9%;
+
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
+    --card-foreground: 222.2 84% 4.9%;
+
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    /* Brand primary color - changed to purple */
+    --primary: 265 83% 45%;
+    --primary-foreground: 210 40% 98%;
+
+    /* Brand secondary color - adjusted to complement purple */
+    --secondary: 280 67% 55%;
+    --secondary-foreground: 210 40% 98%;
+
+    /* Brand accent color - adjusted to complement purple */
+    --accent: 250 100% 65%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 265 83% 45%;
+
     --radius: 0.5rem;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Sidebar colors - aligned with main brand colors */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 222.2 84% 4.9%;
+    --sidebar-primary: 265 83% 45%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 210 40% 96.1%;
+    --sidebar-accent-foreground: 222.2 47.4% 11.2%;
+    --sidebar-border: 214.3 31.8% 91.4%;
+    --sidebar-ring: 265 83% 45%;
   }
+
   .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    /* Maintain same primary purple color in dark mode for brand consistency */
+    --primary: 265 83% 45%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    /* Maintain same secondary color in dark mode */
+    --secondary: 280 67% 55%;
+    --secondary-foreground: 210 40% 98%;
+
+    /* Maintain same accent color in dark mode */
+    --accent: 250 100% 65%;
+    --accent-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 265 83% 45%;
+
+    /* Sidebar colors - consistent with brand */
+    --sidebar-background: 222.2 84% 4.9%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 265 83% 45%;
+    --sidebar-primary-foreground: 222.2 47.4% 11.2%;
+    --sidebar-accent: 217.2 32.6% 17.5%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 217.2 32.6% 17.5%;
+    --sidebar-ring: 265 83% 45%;
   }
 }
 
@@ -91,4 +99,142 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Custom CSS for Bootstrap overrides */
+
+/* For the branding side panel */
+.max-width-md {
+  max-width: 500px;
+}
+
+/* Override Bootstrap's primary color to match our purple brand */
+:root {
+  /* Main brand color from our HSL variables - #6a22c5 (purple) */
+  --bs-primary: #6a22c5;
+  --bs-primary-rgb: 106, 34, 197;
+
+  /* Secondary brand color */
+  --bs-secondary: #9747ff;
+  --bs-secondary-rgb: 151, 71, 255;
+
+  /* Success and other semantic colors */
+  --bs-success: #2e8b57;
+  --bs-success-rgb: 46, 139, 87;
+
+  /* Info color aligned with our accent color */
+  --bs-info: #9d7aff;
+  --bs-info-rgb: 157, 122, 255;
+
+  /* Warning color */
+  --bs-warning: #ffc107;
+  --bs-warning-rgb: 255, 193, 7;
+
+  /* Danger color */
+  --bs-danger: #dc3545;
+  --bs-danger-rgb: 220, 53, 69;
+}
+
+/* Consistent button styling */
+.btn-primary {
+  --bs-btn-bg: var(--bs-primary);
+  --bs-btn-border-color: var(--bs-primary);
+  --bs-btn-hover-bg: #5a1ba8; /* Slightly darker purple */
+  --bs-btn-hover-border-color: #5a1ba8;
+  --bs-btn-active-bg: #5a1ba8;
+  --bs-btn-active-border-color: #5a1ba8;
+  --bs-btn-disabled-bg: rgba(var(--bs-primary-rgb), 0.65);
+  --bs-btn-disabled-border-color: rgba(var(--bs-primary-rgb), 0.65);
+}
+
+.btn-outline-primary {
+  --bs-btn-color: var(--bs-primary);
+  --bs-btn-border-color: var(--bs-primary);
+  --bs-btn-hover-bg: var(--bs-primary);
+  --bs-btn-hover-border-color: var(--bs-primary);
+  --bs-btn-active-bg: var(--bs-primary);
+  --bs-btn-active-border-color: var(--bs-primary);
+  --bs-btn-disabled-color: var(--bs-primary);
+  --bs-btn-disabled-border-color: var(--bs-primary);
+}
+
+/* Secondary button styling */
+.btn-secondary {
+  --bs-btn-bg: var(--bs-secondary);
+  --bs-btn-border-color: var(--bs-secondary);
+  --bs-btn-hover-bg: #7e39e0; /* Slightly darker */
+  --bs-btn-hover-border-color: #7e39e0;
+  --bs-btn-active-bg: #7e39e0;
+  --bs-btn-active-border-color: #7e39e0;
+}
+
+/* Consistent text colors */
+.text-primary {
+  color: var(--bs-primary) !important;
+}
+
+.text-secondary {
+  color: var(--bs-secondary) !important;
+}
+
+/* Background colors */
+.bg-primary {
+  background-color: var(--bs-primary) !important;
+}
+
+.bg-secondary {
+  background-color: var(--bs-secondary) !important;
+}
+
+/* Badge styling for consistency */
+.badge.bg-primary {
+  background-color: var(--bs-primary) !important;
+}
+
+.badge.bg-secondary {
+  background-color: var(--bs-secondary) !important;
+}
+
+/* Form control focus states */
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--bs-primary);
+  box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+}
+
+/* Additional utility classes that might be needed */
+.bg-white.bg-opacity-25 {
+  background-color: rgba(255, 255, 255, 0.25) !important;
+}
+
+.min-vh-100 {
+  min-height: 100vh;
+}
+
+/* Social media platform-specific colors */
+.platform-facebook {
+  color: #4267b2;
+  border-color: #4267b2;
+}
+
+.platform-twitter {
+  color: #1da1f2;
+  border-color: #1da1f2;
+}
+
+.platform-instagram {
+  color: #e1306c;
+  border-color: #e1306c;
+}
+
+/* Alert colors to match our brand */
+.alert-primary {
+  --bs-alert-color: #3a0d70;
+  --bs-alert-bg: #e9d5ff;
+  --bs-alert-border-color: #d4b8ff;
+}
+
+/* Custom branded loader */
+.spinner-primary {
+  color: var(--bs-primary);
 }

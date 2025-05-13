@@ -190,3 +190,7 @@ async def delete_notification(id: int):
 @router.delete("/notifications/delete-all")
 async def delete_all_notifications():
     return {"status": "all deleted"}
+
+@router.get("/notifications/unread/count")
+async def get_unread_notifications_count():
+    return {"count": 2}

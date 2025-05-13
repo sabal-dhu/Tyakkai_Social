@@ -22,25 +22,25 @@ export default function RootLayout({ children }) {
         {/* Make sure our custom CSS loads AFTER Bootstrap to override it */}
         <style>{`
           :root {
-            --bs-primary: #6a22c5 !important;
+            --bs-primaryrgb(197, 178, 34) !important;
             --bs-primary-rgb: 106, 34, 197 !important;
           }
           .bg-primary {
-            background-color: #6a22c5 !important;
+            background-color: #0B7077 !important;
           }
           .text-primary {
-            color: #6a22c5 !important;
+            color: #0B7077 !important;
           }
           .btn-primary {
-            background-color: #6a22c5 !important;
-            border-color: #6a22c5 !important;
+            background-color: #0B7077 !important;
+            border-color: #0B7077 !important;
           }
           .btn-outline-primary {
-            color: #6a22c5 !important;
-            border-color: #6a22c5 !important;
+            color: #0B7077 !important;
+            border-color: #0B7077 !important;
           }
           .btn-outline-primary:hover {
-            background-color: #6a22c5 !important;
+            background-color: #0B7077 !important;
             color: white !important;
           }
         `}</style>
