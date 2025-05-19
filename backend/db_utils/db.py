@@ -1,6 +1,6 @@
-from sqlalchemy import create_engine, Column, String, Integer, DateTime, func
+from sqlalchemy import create_engine, Column, String, Integer, DateTime, func, ForeignKey, Table, Boolean
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, relationship
 from datetime import datetime
 
 # Set up SQLite database (this will create a local 'database.db' file)
@@ -39,6 +39,56 @@ class User(Base):
     role = Column(String, nullable=False, default="editor")  # Default role is "editor"
     created_at = Column(DateTime, server_default=func.now())  # Auto-set creation time
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())  # Auto-set update time
+class SocialAccount(Base):
+    __tablename__ = "social_accounts"
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    platform_name = Column(String, nullable=False)  # e.g. facebook, instagram
+    access_token = Column(String, nullable=False)   # Store encrypted if needed
+    refresh_token = Column(String, nullable=True)   # Store encrypted if needed
+    token_expiry = Column(DateTime, nullable=True)
+    account_id = Column(String, nullable=False)     # External social account ID
+    connected_at = Column(DateTime, default=datetime.utcnow)
+
+class Post(Base):
+    __tablename__ = "posts"
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    content = Column(String, nullable=False)
+    scheduled_datetime = Column(DateTime, nullable=False)
+    is_recurring = Column(Boolean, default=False)
+    recurring_type = Column(String, nullable=True)
+    recurring_end_date = Column(DateTime, nullable=True)
+    campaign = Column(String, nullable=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    platforms = relationship("PostPlatform", back_populates="post")
+    recurring_days = relationship("RecurringDay", back_populates="post")
+    media = relationship("Media", back_populates="post")
+
+class PostPlatform(Base):
+    __tablename__ = "post_platforms"
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    post_id = Column(Integer, ForeignKey("posts.id"))
+    platform = Column(String, nullable=False)
+    post = relationship("Post", back_populates="platforms")
+
+class RecurringDay(Base):
+    __tablename__ = "recurring_days"
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    post_id = Column(Integer, ForeignKey("posts.id"))
+    day = Column(String, nullable=False)
+    post = relationship("Post", back_populates="recurring_days")
+
+class Media(Base):
+    __tablename__ = "media"
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    post_id = Column(Integer, ForeignKey("posts.id"))
+    file_path = Column(String, nullable=False)
+    file_type = Column(String, nullable=False)  # image, video, etc.
+    post = relationship("Post", back_populates="media")
 
 # Create tables if they don't exist
 Base.metadata.create_all(bind=engine)

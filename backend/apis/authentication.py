@@ -19,7 +19,7 @@ from typing import Optional
 from google.oauth2 import service_account
 import google.auth.transport.requests
 from google.oauth2.id_token import verify_oauth2_token
-from db_utils.db import log_user, log_token, User, SessionLocal, UserLog
+from db_utils.db import log_user, log_token, User, SessionLocal, UserLog, SocialAccount
 import logging as logger
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
@@ -305,20 +305,23 @@ REDIRECT_URI_FB = os.getenv("REDIRECT_URI_FB")
 
 
 @router.get("/auth/facebook/login")
-def facebook_login():
+def facebook_login(state: str = ""):
     fb_auth_url = (
         f"https://www.facebook.com/v19.0/dialog/oauth"
         f"?client_id={FB_CLIENT_ID}"
         f"&redirect_uri={REDIRECT_URI_FB}"
         f"&scope=pages_show_list,pages_manage_posts,pages_read_engagement,"
         f"instagram_basic,instagram_content_publish"
+        f"&state={state}"
     )
     return RedirectResponse(fb_auth_url)
 
 
 @router.get("/auth/facebook/callback")
-def facebook_callback(request: Request):
+def facebook_callback(request: Request, db: Session = Depends(get_db)):
     code = request.query_params.get("code")
+    state = request.query_params.get("state")  # This is your JWT
+    
 
     # Step 1: Exchange code for access token
     token_url = "https://graph.facebook.com/v19.0/oauth/access_token"
@@ -331,6 +334,7 @@ def facebook_callback(request: Request):
     res = requests.get(token_url, params=params)
     data = res.json()
     user_access_token = data.get("access_token")
+    token_expiry = data.get("expires_in")
 
     if not user_access_token:
         return JSONResponse({"error": "Token not found"}, status_code=400)
@@ -340,7 +344,35 @@ def facebook_callback(request: Request):
     pages_res = requests.get(pages_url, params={"access_token": user_access_token})
     pages_data = pages_res.json()
 
-    return JSONResponse(pages_data)
+    # For demo, just use the first page/account
+    if not pages_data.get("data"):
+        return JSONResponse({"error": "No pages found"}, status_code=400)
+    page = pages_data["data"][0]
+    account_id = page["id"]
+    account_name = page["name"]
+
+    user_data = get_current_user(state, db)
+    user_id = user_data["id"]
+
+    # Store in SocialAccount table
+    social_account = SocialAccount(
+        user_id=user_id,
+        platform_name="facebook",
+        access_token=user_access_token,
+        refresh_token=None,
+        token_expiry=datetime.utcnow() + timedelta(seconds=token_expiry) if token_expiry else None,
+        account_id=account_id,
+        connected_at=datetime.utcnow()
+    )
+    db.add(social_account)
+    db.commit()
+
+    # Optionally, create a JWT for this user (or use existing login logic)
+    # Example:
+    # access_token = create_access_token(data={"sub": user_id, "platform": "facebook"})
+    # For now, just redirect to dashboard
+    redirect_url = f"http://localhost:3000/dashboard?access_token={user_access_token}"
+    return RedirectResponse(url=redirect_url)
 
 def get_user_pages(access_token: str):
     res = requests.get(
