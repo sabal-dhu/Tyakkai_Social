@@ -6,6 +6,7 @@ import Link from "next/link";
 import CreatePostModal from "@/components/create-post-modal";
 import NotificationDropdown from "@/components/notification-dropdown";
 import api from "@/api";
+import Image from "next/image";
 
 export default function DashboardLayout({ children }) {
   const [isClient, setIsClient] = useState(false);
@@ -163,17 +164,23 @@ export default function DashboardLayout({ children }) {
         >
           <div className="d-flex flex-column h-100">
             {/* Sidebar Header */}
-            <div className="p-3 border-bottom">
-              <div className="d-flex align-items-center">
-                <div
-                  className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2"
-                  style={{ width: "32px", height: "32px" }}
-                >
-                  <span className="fw-bold">TS</span>
-                </div>
-                <div>
-                  <h5 className="mb-0 fw-bold">Tyakkai Social</h5>
-                </div>
+            <div
+              className="p-3 border-bottom"
+              style={{ height: "70px", display: "flex", alignItems: "center" }}
+            >
+              <div className="d-flex align-items-center justify-content-center w-100 h-100">
+                <Image
+                  src="/logo-new.png"
+                  alt="Tyakkai Social"
+                  width={180}
+                  height={50}
+                  style={{
+                    objectFit: "contain",
+                    objectPosition: "center",
+                    maxHeight: "160%",
+                    maxWidth: "150%",
+                  }}
+                />
               </div>
             </div>
 

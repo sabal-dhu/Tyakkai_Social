@@ -116,6 +116,12 @@ export default function Home() {
                   Sign up
                 </Link>
               </p>
+              <Link
+                href="/admin/login"
+                className="text-decoration-none text-muted"
+              >
+                <small>Admin Login →</small>
+              </Link>
             </div>
           </div>
         </div>

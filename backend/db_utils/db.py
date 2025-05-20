@@ -39,6 +39,7 @@ class User(Base):
     role = Column(String, nullable=False, default="editor")  # Default role is "editor"
     created_at = Column(DateTime, server_default=func.now())  # Auto-set creation time
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())  # Auto-set update time
+    active = Column(Boolean, default=True, nullable=False)
 class SocialAccount(Base):
     __tablename__ = "social_accounts"
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)

@@ -35,11 +35,12 @@ export default function LoginForm({ onLoginSuccess }) {
 
         setTimeout(() => {
           router.push("/dashboard");
-        }, 1500);
+        }, 1000);
       }
     } catch (err) {
       console.error("Login error:", err);
-      setError("Invalid email or password. Please try again.");
+      console.log(err.response?.data);
+      setError(err.response?.data?.detail || "Login failed. Please try again.");
     } finally {
       setIsLoading(false);
     }

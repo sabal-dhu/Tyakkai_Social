@@ -1,10 +1,14 @@
-"use client"
+"use client";
 
-import { useState, useRef, useEffect } from "react"
-import api from "@/api"
+import { useState, useRef, useEffect } from "react";
+import api from "@/api";
 
-
-export default function CreatePostModal({ show, onHide, editPost = null, onSuccess = null }) {
+export default function CreatePostModal({
+  show,
+  onHide,
+  editPost = null,
+  onSuccess = null,
+}) {
   const [formData, setFormData] = useState({
     content: "",
     platforms: [],
@@ -15,16 +19,16 @@ export default function CreatePostModal({ show, onHide, editPost = null, onSucce
     recurringDays: [],
     recurringEndDate: "",
     campaign: "",
-  })
+  });
 
-  const [mediaFiles, setMediaFiles] = useState([])
-  const [mediaPreview, setMediaPreview] = useState([])
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState("")
-  const [success, setSuccess] = useState("")
-  const [campaigns, setCampaigns] = useState([])
+  const [mediaFiles, setMediaFiles] = useState([]);
+  const [mediaPreview, setMediaPreview] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [campaigns, setCampaigns] = useState([]);
 
-  const fileInputRef = useRef(null)
+  const fileInputRef = useRef(null);
 
   // Dummy campaigns data
   const dummyCampaigns = [
@@ -34,17 +38,14 @@ export default function CreatePostModal({ show, onHide, editPost = null, onSucce
     { id: 4, name: "Tips & Tricks" },
     { id: 5, name: "Customer Stories" },
     { id: 6, name: "Weekend Promo" },
-  ]
+  ];
 
   // Available platforms
   const availablePlatforms = [
     { id: "facebook", name: "Facebook" },
     { id: "instagram", name: "Instagram" },
     { id: "twitter", name: "Twitter" },
-    { id: "linkedin", name: "LinkedIn" },
-    { id: "tiktok", name: "TikTok" },
-    { id: "youtube", name: "YouTube" },
-  ]
+  ];
 
   // Days of the week for recurring posts
   const daysOfWeek = [
@@ -55,44 +56,44 @@ export default function CreatePostModal({ show, onHide, editPost = null, onSucce
     { id: "friday", name: "Friday" },
     { id: "saturday", name: "Saturday" },
     { id: "sunday", name: "Sunday" },
-  ]
+  ];
 
   useEffect(() => {
     // Fetch campaigns
     const fetchCampaigns = async () => {
       try {
-        const token = localStorage.getItem("access_token")
+        const token = localStorage.getItem("access_token");
 
         // Try API call first
-        let campaignsData = null
+        let campaignsData = null;
         try {
           const response = await api.get("/api/campaigns", {
             headers: { Authorization: `Bearer ${token}` },
-          })
-          campaignsData = response.data
+          });
+          campaignsData = response.data;
         } catch (error) {
-          console.log("API not available, using dummy data")
+          console.log("API not available, using dummy data");
         }
 
         // If API call failed, use dummy data
         if (!campaignsData) {
-          campaignsData = dummyCampaigns
+          campaignsData = dummyCampaigns;
         }
 
-        setCampaigns(campaignsData)
+        setCampaigns(campaignsData);
       } catch (err) {
-        console.error("Error fetching campaigns:", err)
+        console.error("Error fetching campaigns:", err);
       }
-    }
+    };
 
-    fetchCampaigns()
+    fetchCampaigns();
 
     // Check if there's a prefilled date in localStorage
-    const prefilledDate = localStorage.getItem("prefilledScheduledDate")
+    const prefilledDate = localStorage.getItem("prefilledScheduledDate");
 
     // If editing a post, populate the form
     if (editPost) {
-      const postDate = new Date(editPost.scheduled_datetime)
+      const postDate = new Date(editPost.scheduled_datetime);
 
       setFormData({
         content: editPost.content || "",
@@ -104,7 +105,7 @@ export default function CreatePostModal({ show, onHide, editPost = null, onSucce
         recurringDays: editPost.recurring_days || [],
         recurringEndDate: editPost.recurring_end_date || "",
         campaign: editPost.campaign || "",
-      })
+      });
 
       // Set media previews if available
       if (editPost.media && editPost.media.length > 0) {
@@ -112,36 +113,38 @@ export default function CreatePostModal({ show, onHide, editPost = null, onSucce
           url: media.url,
           type: media.type,
           name: media.url.split("/").pop() || "media-file",
-        }))
-        setMediaPreview(previews)
+        }));
+        setMediaPreview(previews);
       }
     } else if (prefilledDate) {
       // If there's a prefilled date, use it
-      const date = new Date(prefilledDate)
+      const date = new Date(prefilledDate);
 
       setFormData({
         ...formData,
         scheduledDate: date.toISOString().split("T")[0],
-        scheduledTime: `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`,
-      })
+        scheduledTime: `${String(date.getHours()).padStart(2, "0")}:${String(
+          date.getMinutes()
+        ).padStart(2, "0")}`,
+      });
 
       // Clear the localStorage item
-      localStorage.removeItem("prefilledScheduledDate")
+      localStorage.removeItem("prefilledScheduledDate");
     } else {
       // Reset form for new post
-      resetForm()
+      resetForm();
     }
-  }, [editPost, show])
+  }, [editPost, show]);
 
   const resetForm = () => {
     // Get today's date in YYYY-MM-DD format
-    const today = new Date().toISOString().split("T")[0]
+    const today = new Date().toISOString().split("T")[0];
 
     // Get current time in HH:MM format
-    const now = new Date()
-    const hours = String(now.getHours()).padStart(2, "0")
-    const minutes = String(now.getMinutes()).padStart(2, "0")
-    const currentTime = `${hours}:${minutes}`
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    const currentTime = `${hours}:${minutes}`;
 
     setFormData({
       content: "",
@@ -153,170 +156,174 @@ export default function CreatePostModal({ show, onHide, editPost = null, onSucce
       recurringDays: [],
       recurringEndDate: "",
       campaign: "",
-    })
-    setMediaFiles([])
-    setMediaPreview([])
-    setError("")
-    setSuccess("")
-  }
+    });
+    setMediaFiles([]);
+    setMediaPreview([]);
+    setError("");
+    setSuccess("");
+  };
 
   const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target
+    const { name, value, type, checked } = e.target;
 
     if (type === "checkbox" && name === "platforms") {
       // Handle platform selection (multiple checkboxes)
-      const updatedPlatforms = [...formData.platforms]
+      const updatedPlatforms = [...formData.platforms];
       if (checked) {
-        updatedPlatforms.push(value)
+        updatedPlatforms.push(value);
       } else {
-        const index = updatedPlatforms.indexOf(value)
+        const index = updatedPlatforms.indexOf(value);
         if (index !== -1) {
-          updatedPlatforms.splice(index, 1)
+          updatedPlatforms.splice(index, 1);
         }
       }
-      setFormData({ ...formData, platforms: updatedPlatforms })
+      setFormData({ ...formData, platforms: updatedPlatforms });
     } else if (type === "checkbox" && name === "recurringDays") {
       // Handle recurring days selection (multiple checkboxes)
-      const updatedDays = [...formData.recurringDays]
+      const updatedDays = [...formData.recurringDays];
       if (checked) {
-        updatedDays.push(value)
+        updatedDays.push(value);
       } else {
-        const index = updatedDays.indexOf(value)
+        const index = updatedDays.indexOf(value);
         if (index !== -1) {
-          updatedDays.splice(index, 1)
+          updatedDays.splice(index, 1);
         }
       }
-      setFormData({ ...formData, recurringDays: updatedDays })
+      setFormData({ ...formData, recurringDays: updatedDays });
     } else if (name === "isRecurring") {
       // Handle recurring toggle
-      setFormData({ ...formData, [name]: checked })
+      setFormData({ ...formData, [name]: checked });
     } else {
       // Handle other inputs
-      setFormData({ ...formData, [name]: value })
+      setFormData({ ...formData, [name]: value });
     }
     console.log("FormData:", formData);
-  }
+  };
 
   const handleMediaUpload = (e) => {
-    const files = Array.from(e.target.files)
-    if (files.length === 0) return
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
 
     // Limit to 5 files
     if (mediaFiles.length + files.length > 5) {
-      setError("You can upload a maximum of 5 files")
-      return
+      setError("You can upload a maximum of 5 files");
+      return;
     }
 
     // Create previews for the files
-    const newMediaFiles = [...mediaFiles, ...files]
-    setMediaFiles(newMediaFiles)
+    const newMediaFiles = [...mediaFiles, ...files];
+    setMediaFiles(newMediaFiles);
 
-    const newPreviews = [...mediaPreview]
+    const newPreviews = [...mediaPreview];
 
     files.forEach((file) => {
-      const fileType = file.type.split("/")[0]
-      const reader = new FileReader()
+      const fileType = file.type.split("/")[0];
+      const reader = new FileReader();
 
       reader.onload = (e) => {
         newPreviews.push({
           url: e.target.result,
           type: fileType,
           name: file.name,
-        })
-        setMediaPreview([...newPreviews])
-      }
+        });
+        setMediaPreview([...newPreviews]);
+      };
 
-      reader.readAsDataURL(file)
-    })
-  }
+      reader.readAsDataURL(file);
+    });
+  };
 
   const removeMedia = (index) => {
-    const updatedFiles = [...mediaFiles]
-    const updatedPreviews = [...mediaPreview]
+    const updatedFiles = [...mediaFiles];
+    const updatedPreviews = [...mediaPreview];
 
-    updatedFiles.splice(index, 1)
-    updatedPreviews.splice(index, 1)
+    updatedFiles.splice(index, 1);
+    updatedPreviews.splice(index, 1);
 
-    setMediaFiles(updatedFiles)
-    setMediaPreview(updatedPreviews)
-  }
+    setMediaFiles(updatedFiles);
+    setMediaPreview(updatedPreviews);
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError("")
-    setSuccess("")
-    setIsSubmitting(true)
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+    setIsSubmitting(true);
 
     // Validate form
     if (formData.content.trim() === "") {
-      setError("Post content is required")
-      setIsSubmitting(false)
-      return
+      setError("Post content is required");
+      setIsSubmitting(false);
+      return;
     }
 
     if (formData.platforms.length === 0) {
-      setError("Please select at least one platform")
-      setIsSubmitting(false)
-      return
+      setError("Please select at least one platform");
+      setIsSubmitting(false);
+      return;
     }
 
     if (!formData.scheduledDate || !formData.scheduledTime) {
-      setError("Please set a date and time for your post")
-      setIsSubmitting(false)
-      return
+      setError("Please set a date and time for your post");
+      setIsSubmitting(false);
+      return;
     }
 
     // Additional validation for recurring posts
     if (formData.isRecurring) {
       if (formData.recurringDays.length === 0) {
-        setError("Please select at least one day for recurring posts")
-        setIsSubmitting(false)
-        return
+        setError("Please select at least one day for recurring posts");
+        setIsSubmitting(false);
+        return;
       }
 
       if (!formData.recurringEndDate) {
-        setError("Please set an end date for recurring posts")
-        setIsSubmitting(false)
-        return
+        setError("Please set an end date for recurring posts");
+        setIsSubmitting(false);
+        return;
       }
     }
 
     try {
-      const token = localStorage.getItem("access_token")
+      const token = localStorage.getItem("access_token");
 
       // Create FormData object for file upload
-      const postData = new FormData()
-      postData.append("content", formData.content)
+      const postData = new FormData();
+      console.log("FormData:", formData);
+      postData.append("content", formData.content);
       formData.platforms.forEach((platform) => {
-        postData.append("platforms", platform)
-      })
+        postData.append("platforms", platform);
+      });
 
       // Combine date and time
-      const scheduledDateTime = new Date(`${formData.scheduledDate}T${formData.scheduledTime}`)
-      postData.append("scheduled_datetime", scheduledDateTime.toISOString())
+      const scheduledDateTime = new Date(
+        `${formData.scheduledDate}T${formData.scheduledTime}`
+      );
+      postData.append("scheduled_datetime", scheduledDateTime.toISOString());
 
       // Add campaign if selected
       if (formData.campaign) {
-        postData.append("campaign", formData.campaign)
+        postData.append("campaign", formData.campaign);
       }
 
       // Add recurring data if enabled
-      postData.append("is_recurring", formData.isRecurring)
+      postData.append("is_recurring", formData.isRecurring);
       if (formData.isRecurring) {
-        postData.append("recurring_type", formData.recurringType)
+        postData.append("recurring_type", formData.recurringType);
         formData.recurringDays.forEach((day) => {
-          postData.append("recurring_days", day)
-        })
-        postData.append("recurring_end_date", formData.recurringEndDate)
+          postData.append("recurring_days", day);
+        });
+        postData.append("recurring_end_date", formData.recurringEndDate);
       }
 
       // Append media files
       mediaFiles.forEach((file) => {
-        postData.append("media", file)
-      })
+        postData.append("media", file);
+      });
+      console.log(postData.forEach((value, key) => console.log(key, value)));
 
       // Send request to API
-      let response
+      let response;
       if (editPost) {
         // Update existing post
         response = await api.put(`/api/posts/${editPost.id}`, postData, {
@@ -324,8 +331,8 @@ export default function CreatePostModal({ show, onHide, editPost = null, onSucce
             Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
           },
-        })
-        setSuccess("Post updated successfully!")
+        });
+        setSuccess("Post updated successfully!");
       } else {
         // Create new post
         response = await api.post("/api/posts", postData, {
@@ -333,50 +340,81 @@ export default function CreatePostModal({ show, onHide, editPost = null, onSucce
             Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
           },
-        })
-        setSuccess("Post scheduled successfully!")
+        });
+        setSuccess("Post scheduled successfully!");
       }
 
       // Reset form after successful submission
-      resetForm()
+      resetForm();
 
       // Call onSuccess callback if provided
       if (onSuccess) {
-        onSuccess()
+        onSuccess();
       }
 
       // Close modal after a short delay
       setTimeout(() => {
-        onHide()
-        setSuccess("")
-      }, 2000)
+        onHide();
+        setSuccess("");
+      }, 2000);
     } catch (err) {
-      console.error("Error creating/updating post:", err)
-      setError(err.response?.data?.detail || "Failed to schedule post. Please try again.")
+      let msg = "Failed to schedule post. Please try again.";
+      if (err.response?.data?.detail) {
+        if (typeof err.response.data.detail === "string") {
+          msg = err.response.data.detail;
+        } else if (Array.isArray(err.response.data.detail)) {
+          // FastAPI validation errors
+          msg = err.response.data.detail.map(
+            (e) => `${e.loc?.join(".")}: ${e.msg}`
+          ).join(" | ");
+        } else if (typeof err.response.data.detail === "object") {
+          msg = err.response.data.detail.msg || JSON.stringify(err.response.data.detail);
+        }
+      }
+      setError(msg);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   // Set min date for date inputs to today
-  const today = new Date().toISOString().split("T")[0]
+  const today = new Date().toISOString().split("T")[0];
 
   // If modal is not shown, don't render anything
-  if (!show) return null
+  if (!show) return null;
 
   return (
-    <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+    <div
+      className="modal show d-block"
+      tabIndex="-1"
+      style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+    >
       <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div className="modal-content">
           <div className="modal-header">
-            <h5 className="modal-title">{editPost ? "Edit Post" : "Create New Post"}</h5>
-            <button type="button" className="btn-close" onClick={onHide} disabled={isSubmitting}></button>
+            <h5 className="modal-title">
+              {editPost ? "Edit Post" : "Create New Post"}
+            </h5>
+            <button
+              type="button"
+              className="btn-close"
+              onClick={onHide}
+              disabled={isSubmitting}
+            ></button>
           </div>
 
           <div className="modal-body">
             {error && (
               <div className="alert alert-danger" role="alert">
-                {error}
+                {typeof error === "string"
+                  ? error
+                  : Array.isArray(error)
+                    ? error.map((err, idx) => (
+                        <div key={idx}>
+                          {err.msg || JSON.stringify(err)}
+                        </div>
+                      ))
+                    : error.msg || JSON.stringify(error)}
               </div>
             )}
 
@@ -406,8 +444,14 @@ export default function CreatePostModal({ show, onHide, editPost = null, onSucce
 
               {/* Media Upload */}
               <div className="mb-3">
-                <label className="form-label d-block">Media (Images & Videos)</label>
-                <button type="button" className="btn btn-outline-primary" onClick={() => fileInputRef.current.click()}>
+                <label className="form-label d-block">
+                  Media (Images & Videos)
+                </label>
+                <button
+                  type="button"
+                  className="btn btn-outline-primary"
+                  onClick={() => fileInputRef.current.click()}
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="16"
@@ -445,19 +489,31 @@ export default function CreatePostModal({ show, onHide, editPost = null, onSucce
                   <div className="mt-3">
                     <div className="d-flex flex-wrap gap-2">
                       {mediaPreview.map((media, index) => (
-                        <div key={index} className="position-relative" style={{ width: "120px" }}>
+                        <div
+                          key={index}
+                          className="position-relative"
+                          style={{ width: "120px" }}
+                        >
                           {media.type === "image" ? (
                             <img
                               src={media.url || "/placeholder.svg"}
                               alt={`Preview ${index}`}
                               className="img-thumbnail"
-                              style={{ width: "120px", height: "120px", objectFit: "cover" }}
+                              style={{
+                                width: "120px",
+                                height: "120px",
+                                objectFit: "cover",
+                              }}
                             />
                           ) : (
                             <video
                               src={media.url}
                               className="img-thumbnail"
-                              style={{ width: "120px", height: "120px", objectFit: "cover" }}
+                              style={{
+                                width: "120px",
+                                height: "120px",
+                                objectFit: "cover",
+                              }}
                             />
                           )}
                           <button
@@ -467,7 +523,10 @@ export default function CreatePostModal({ show, onHide, editPost = null, onSucce
                           >
                             ×
                           </button>
-                          <small className="d-block text-truncate" style={{ width: "120px" }}>
+                          <small
+                            className="d-block text-truncate"
+                            style={{ width: "120px" }}
+                          >
                             {media.name}
                           </small>
                         </div>
@@ -492,7 +551,10 @@ export default function CreatePostModal({ show, onHide, editPost = null, onSucce
                         checked={formData.platforms.includes(platform.id)}
                         onChange={handleInputChange}
                       />
-                      <label className="form-check-label" htmlFor={`platform-${platform.id}`}>
+                      <label
+                        className="form-check-label"
+                        htmlFor={`platform-${platform.id}`}
+                      >
                         {platform.name}
                       </label>
                     </div>
@@ -596,7 +658,9 @@ export default function CreatePostModal({ show, onHide, editPost = null, onSucce
 
                     {formData.recurringType === "weekly" && (
                       <div className="mb-3">
-                        <label className="form-label d-block">Days of Week</label>
+                        <label className="form-label d-block">
+                          Days of Week
+                        </label>
                         <div className="d-flex flex-wrap gap-2">
                           {daysOfWeek.map((day) => (
                             <div key={day.id} className="form-check">
@@ -606,10 +670,15 @@ export default function CreatePostModal({ show, onHide, editPost = null, onSucce
                                 id={`day-${day.id}`}
                                 name="recurringDays"
                                 value={day.id}
-                                checked={formData.recurringDays.includes(day.id)}
+                                checked={formData.recurringDays.includes(
+                                  day.id
+                                )}
                                 onChange={handleInputChange}
                               />
-                              <label className="form-check-label" htmlFor={`day-${day.id}`}>
+                              <label
+                                className="form-check-label"
+                                htmlFor={`day-${day.id}`}
+                              >
                                 {day.name}
                               </label>
                             </div>
@@ -639,13 +708,27 @@ export default function CreatePostModal({ show, onHide, editPost = null, onSucce
           </div>
 
           <div className="modal-footer">
-            <button type="button" className="btn btn-secondary" onClick={onHide} disabled={isSubmitting}>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={onHide}
+              disabled={isSubmitting}
+            >
               Cancel
             </button>
-            <button type="button" className="btn btn-primary" onClick={handleSubmit} disabled={isSubmitting}>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+            >
               {isSubmitting ? (
                 <>
-                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  <span
+                    className="spinner-border spinner-border-sm me-2"
+                    role="status"
+                    aria-hidden="true"
+                  ></span>
                   {editPost ? "Updating..." : "Scheduling..."}
                 </>
               ) : editPost ? (
@@ -658,5 +741,5 @@ export default function CreatePostModal({ show, onHide, editPost = null, onSucce
         </div>
       </div>
     </div>
-  )
+  );
 }

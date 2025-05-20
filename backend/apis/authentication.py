@@ -127,12 +127,15 @@ async def register_user(request: RegisterRequest, db: Session = Depends(get_db))
         name=request.name,
         company_name=request.company_name,
         role=request.role if request.role else "editor",
+        active=True,
     )
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
 
     return {"message": "User registered successfully"}
+
+
 
 # API to log in a user
 @router.post("/login", response_model=TokenResponse)
@@ -142,6 +145,10 @@ async def login_user(request: LoginRequest, db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(status_code=400, detail="Invalid email or password")
 
+    # Check if the user is active
+    if not user.active:
+        raise HTTPException(status_code=403, detail="User is deactivated by admin")
+
     # Verify the password
     if not verify_password(request.password, user.password_hash):
         raise HTTPException(status_code=400, detail="Invalid email or password")
@@ -149,7 +156,67 @@ async def login_user(request: LoginRequest, db: Session = Depends(get_db)):
     # Create a JWT token
     access_token = create_access_token(data={"sub": user.email, "role": user.role})
 
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {"access_token": access_token, "token_type": "bearer", "role": user.role, "email": user.email, "name": user.name, "company_name": user.company_name}
+
+@router.post("/admin/register", response_model=dict)
+async def register_admin(
+    request: RegisterRequest,
+    # authorization: str = Header(...),
+    db: Session = Depends(get_db)
+):
+    # Authenticate and authorize the requester as admin
+    # if not authorization or not authorization.startswith("Bearer "):
+    #     raise HTTPException(status_code=401, detail="Authorization header missing or invalid")
+    # token = authorization.split("Bearer ")[1]
+    # user = get_current_user(token, db)
+    # if user["role"] != "admin":
+    #     raise HTTPException(status_code=403, detail="Only admins can register new admins")
+
+    # Check if the email already exists
+    existing_user = db.query(User).filter(User.email == request.email).first()
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+
+    # Hash the password
+    hashed_password = hash_password(request.password)
+
+    # Create a new admin user
+    new_user = User(
+        email=request.email,
+        password_hash=hashed_password,
+        name=request.name,
+        company_name=request.company_name,
+        role="admin",  # Force admin role
+        active=True,
+    )
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+
+    return {"message": "Admin registered successfully"}
+
+@router.post("/admin/login", response_model=dict)
+async def admin_login(request: LoginRequest, db: Session = Depends(get_db)):
+    # Check if the user exists
+    user = db.query(User).filter(User.email == request.email).first()
+    if not user:
+        raise HTTPException(status_code=400, detail="Invalid email or password")
+
+    # Check if the user is an admin
+    if user.role != "admin":
+        raise HTTPException(status_code=403, detail="User is not an admin")
+
+    # Verify the password
+    if not verify_password(request.password, user.password_hash):
+        raise HTTPException(status_code=400, detail="Invalid email or password")
+
+    # Create a JWT token
+    access_token = create_access_token(data={"sub": user.email, "role": user.role})
+
+    return {"access_token": access_token, "role": user.role, "token_type": "bearer", "email": user.email, "name": user.name}
+
+
+
 
 def get_current_user(token: str = Cookie(None)):
     if not token:
@@ -491,3 +558,4 @@ async def get_user_data(authorization: str = Header(...), db: Session = Depends(
     
     token = authorization.split("Bearer ")[1]
     return get_current_user(token, db)
+

@@ -280,7 +280,8 @@ export default function DashboardOverview() {
 
     try {
       // Redirect the user to the backend's Google OAuth endpoint
-      window.location.href = "http://localhost:8000/auth/facebook/login";
+      const token = localStorage.getItem("access_token");
+      window.location.href = `http://localhost:8000/auth/facebook/login?state=${token}`;
     } catch (err) {
       console.error("Facebook Connect error:", err);
       setError("Failed to connect facebook. Please try again.");

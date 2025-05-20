@@ -1,10 +1,11 @@
 from typing import List, Dict, Optional
-from fastapi import APIRouter, Query, UploadFile, File, Form, Depends, HTTPException, Header
+from fastapi import APIRouter, Query, UploadFile, File, Body, Form, Depends, HTTPException, Header
 from db_utils.db import SessionLocal, Post, PostPlatform, RecurringDay, Media, User
 from datetime import datetime, timedelta
 import os
 from sqlalchemy.orm import Session
 from apis.authentication import get_current_user
+
 
 router = APIRouter(prefix="/api")
 
@@ -207,6 +208,40 @@ async def delete_post(
         return {"error": str(e)}
     finally:
         db.close()
+        
+@router.get("/users")
+async def get_users(db: Session = Depends(get_db)):
+    users = db.query(User).all()
+    result = []
+    for user in users:
+        result.append({
+            "id": user.id,
+            "name": user.name,
+            "email": user.email,
+            "active": user.active,
+            "role": user.role,
+            "lastLogin": user.updated_at.isoformat() if user.updated_at else None,
+        })
+    return result
+
+@router.patch("/users/{user_id}/status")
+async def update_user_status(
+    user_id: int,
+    data: dict = Body(...),
+    db: Session = Depends(get_db)
+):
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    if "active" not in data:
+        raise HTTPException(status_code=400, detail="Missing 'active' field")
+    user.active = bool(data["active"])
+    db.commit()
+    return {
+        "success": True,
+        "message": f"User {user_id} status updated to {'active' if user.active else 'inactive'}",
+        "user": {"id": user_id, "active": user.active},
+    }
         
 # 1. Dashboard Endpoints
 @router.get("/dashboard/stats")
