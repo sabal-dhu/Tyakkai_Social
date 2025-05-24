@@ -21,18 +21,7 @@ export default function HashtagSuggestionsPage() {
     {
       id: 1,
       name: "Marketing",
-      hashtags: [
-        "#marketing",
-        "#digitalmarketing",
-        "#socialmediamarketing",
-        "#marketingtips",
-        "#marketingstrategy",
-        "#contentmarketing",
-        "#branding",
-        "#business",
-        "#socialmedia",
-        "#marketingdigital",
-      ],
+      hashtags: ["#marketing", "#digitalmarketing", "#socialmediamarketing"],
     },
     {
       id: 2,
@@ -42,50 +31,17 @@ export default function HashtagSuggestionsPage() {
         "#entrepreneur",
         "#smallbusinessowner",
         "#supportsmallbusiness",
-        "#shoplocal",
-        "#entrepreneurship",
-        "#startup",
-        "#business",
-        "#shopsmall",
-        "#entrepreneurlife",
       ],
     },
     {
       id: 3,
       name: "Product Launch",
-      hashtags: [
-        "#newproduct",
-        "#launch",
-        "#newlaunch",
-        "#comingsoon",
-        "#productlaunch",
-        "#innovation",
-        "#new",
-        "#newarrivals",
-        "#newrelease",
-        "#exclusive",
-      ],
+      hashtags: ["#newproduct", "#launch", "#newlaunch", "#comingsoon"],
     },
   ];
 
   // Dummy data for suggested hashtags
-  const dummySuggestions = [
-    "#socialmedia",
-    "#digitalmarketing",
-    "#marketing",
-    "#socialmediamarketing",
-    "#business",
-    "#instagram",
-    "#branding",
-    "#contentmarketing",
-    "#entrepreneur",
-    "#marketingtips",
-    "#socialmediatips",
-    "#smallbusiness",
-    "#advertising",
-    "#marketingstrategy",
-    "#onlinemarketing",
-  ];
+  const dummySuggestions = ["#socialmedia", "#digitalmarketing", "#marketing"];
 
   useEffect(() => {
     // Fetch saved hashtag groups
@@ -141,17 +97,18 @@ export default function HashtagSuggestionsPage() {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        suggestionsData = response.data;
+        suggestionsData = response.data.hashtags;
+        console.log("API call result:", response.data);
       } catch (error) {
         console.log("API not available, using dummy data");
       }
-
       // If API call failed, use dummy data
       if (!suggestionsData) {
         suggestionsData = dummySuggestions;
       }
 
       setSuggestions(suggestionsData);
+      console.log("Generated hashtags:", suggestionsData);
     } catch (err) {
       console.error("Error generating hashtags:", err);
       setError("Failed to generate hashtags. Please try again.");
@@ -264,10 +221,8 @@ export default function HashtagSuggestionsPage() {
                     onChange={(e) => setPlatform(e.target.value)}
                   >
                     <option value="instagram">Instagram</option>
-                    <option value="twitter">Twitter</option>
+                    {/* <option value="twitter">Twitter</option> */}
                     <option value="facebook">Facebook</option>
-                    <option value="linkedin">LinkedIn</option>
-                    <option value="tiktok">TikTok</option>
                   </select>
                 </div>
                 <div className="col-md-4">
@@ -281,7 +236,8 @@ export default function HashtagSuggestionsPage() {
                     onChange={(e) => setIndustry(e.target.value)}
                   >
                     <option value="general">General</option>
-                    <option value="marketing">Marketing</option>
+                    <option value="artificial intelligence">AI</option>
+                    <option value="garment">Garment</option>
                     <option value="technology">Technology</option>
                     <option value="fashion">Fashion</option>
                     <option value="food">Food & Beverage</option>
@@ -305,7 +261,6 @@ export default function HashtagSuggestionsPage() {
                     <option value="10">10</option>
                     <option value="15">15</option>
                     <option value="20">20</option>
-                    <option value="30">30</option>
                   </select>
                 </div>
               </div>

@@ -5,7 +5,8 @@ from datetime import datetime, timedelta
 import os
 from sqlalchemy.orm import Session
 from apis.authentication import get_current_user
-
+from tyakkai_ai.hashtag import TyakkaiHashtagAPI
+from dotenv import load_dotenv
 
 router = APIRouter(prefix="/api")
 
@@ -372,13 +373,46 @@ async def get_calendar_posts(
     ]
 
 # 7. Hashtag Endpoints
+
+# Initialize the hashtag API 
+# Load environment variables from .env file
+
+GROK_API_KEY = os.getenv("GROK_API_KEY")
+GROK_API_BASE = os.getenv("GROK_API_BASE")
+
+hashtag_api = TyakkaiHashtagAPI(
+    model_name="llama3-70b-8192",
+    api_key=GROK_API_KEY,
+    api_base=GROK_API_BASE
+)
+
 @router.post("/hashtags/generate")
-async def generate_hashtags():
-    return [
-        "#socialmedia",
-        "#digitalmarketing",
-        "#marketing"
-    ]
+async def generate_hashtags_api(
+    data: dict = Body(...)
+):
+    content = data.get("content")
+    platform = data.get("platform")
+    industry = data.get("industry")
+    count = data.get("count", 15)
+    
+    print(f"Received data: {data}")
+    print(f"Content: {content}, Platform: {platform}, Industry: {industry}, Count: {count}")
+
+    if not all([content, platform, industry]):
+        raise HTTPException(status_code=400, detail="Missing required fields: content, platform, industry")
+
+    try:
+        hashtags = await hashtag_api.generate_hashtags(
+            content=content,
+            platform=platform,
+            industry=industry,
+            count=count
+        )
+        # Ensure each hashtag starts with '#'
+        hashtags = [h if h.startswith("#") else f"#{h}" for h in hashtags]
+        return {"hashtags": hashtags}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 # 8. Notification Endpoints
 @router.get("/notifications")

@@ -438,27 +438,16 @@ export default function DashboardLayout({ children }) {
               <h1 className="h4 mb-0 fw-bold">{getPageTitle()}</h1>
               <div className="d-flex align-items-center">
                 <NotificationDropdown />
-                <button
-                  className="btn btn-outline-primary d-flex align-items-center ms-3"
-                  onClick={handleCreatePost}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="me-2"
+                <Link href="/dashboard/profile" className="ms-3">
+                  <div
+                    className="bg-light rounded-circle d-flex align-items-center justify-content-center"
+                    style={{ width: "40px", height: "40px", cursor: "pointer" }}
                   >
-                    <line x1="12" x2="12" y1="5" y2="19" />
-                    <line x1="5" x2="19" y1="12" y2="12" />
-                  </svg>
-                  New Post
-                </button>
+                    <span className="fw-bold">
+                      {user?.full_name?.charAt(0) || "U"}
+                    </span>
+                  </div>
+                </Link>
               </div>
             </div>
           </header>

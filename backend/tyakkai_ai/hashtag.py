@@ -1,5 +1,7 @@
 import asyncio
 import dspy
+import os
+from dotenv import load_dotenv
 from enum import Enum
 from pydantic import BaseModel, Field
 from typing import List
@@ -95,21 +97,25 @@ class TyakkaiHashtagAPI:
 # Main Execution
 # ------------------------------
 
+# Load environment variables from .env file
+load_dotenv()
+
 async def main():
-    # Initialize with your actual API key
-    GROK_API_KEY = "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"
-    
+    # Load from environment variables
+    GROK_API_KEY = os.getenv("GROK_API_KEY")
+    GROK_API_BASE = os.getenv("GROK_API_BASE")
+
     hashtag_api = TyakkaiHashtagAPI(
         model_name="llama3-70b-8192",
         api_key=GROK_API_KEY,
-        api_base="https://api.groq.com/openai/v1"
+        api_base=GROK_API_BASE
     )
 
     hashtags = await hashtag_api.generate_hashtags(
-        content="new summer t-shirt for men!",
-        platform="twitter",
-        industry="garment",
-        count=15
+        content="Exploring the beautiful beaches of Bali with friends!",
+        platform="facebook",
+        industry="travel",
+        count=10
     )
 
     print("Generated Hashtags:")
