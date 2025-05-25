@@ -1,7 +1,7 @@
 1. For Dashboard
 http://localhost:8000/api/dashboard/stats
 {
-    totalFollowers: "17K",
+    totalFollowers: "1K",
     followerGrowth: "12%",
     engagementRate: "4.2%",
     engagementGrowth: "0.8%",
