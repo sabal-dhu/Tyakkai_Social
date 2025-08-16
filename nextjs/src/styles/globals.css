@@ -14,7 +14,7 @@
     --popover-foreground: 222.2 84% 4.9%;
 
     /* Brand primary color - changed to purple */
-    --primary: 265 83% 45%;
+    --primary: 220 90% 56%;
     --primary-foreground: 210 40% 98%;
 
     /* Brand secondary color - adjusted to complement purple */
@@ -111,8 +111,8 @@
 /* Override Bootstrap's primary color to match our purple brand */
 :root {
   /* Main brand color from our HSL variables - #6a22c5 (purple) */
-  --bs-primary: #6a22c5;
-  --bs-primary-rgb: 106, 34, 197;
+  --bs-primary: #2563eb;
+  --bs-primary-rgb: 37, 99, 235;
 
   /* Secondary brand color */
   --bs-secondary: #9747ff;
