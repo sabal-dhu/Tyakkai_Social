@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 from pydantic import BaseModel
 from typing import List
-from apis import authentication, frontend
+from apis import authentication, frontend, password_reset
 import logging as logger
 import time
 
@@ -47,6 +47,7 @@ async def log_response_time(request: Request, call_next):
 
 app.include_router(authentication.router, tags=["Authentication"])
 app.include_router(frontend.router, tags=["Frontend"])
+app.include_router(password_reset.router, tags=["Password Reset"])
 
 
 if __name__ == "__main__":
