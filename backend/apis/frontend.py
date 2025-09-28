@@ -7,6 +7,9 @@ from sqlalchemy.orm import Session
 from apis.authentication import get_current_user
 from tyakkai_ai.hashtag import TyakkaiHashtagAPI
 from dotenv import load_dotenv
+import requests
+from datetime import datetime
+
 
 router = APIRouter(prefix="/api")
 
@@ -20,21 +23,26 @@ def get_db():
     finally:
         db.close()
 
+
+load_dotenv()
+
+
+PAGE_ACCESS_TOKEN = os.getenv("PAGE_ACCESS_TOKEN")
+PAGE_ID = os.getenv("PAGE_ID")
+
+GRAPH_API_BASE = "https://graph.facebook.com/v23.0"
+
 @router.post("/posts")
 async def create_post(
     content: str = Form(...),
-    scheduled_datetime: str = Form(...),
+    url: str = Form(None),
+    scheduled_datetime: str = Form(None),
     platforms: list[str] = Form(...),
-    is_recurring: bool = Form(False),
-    recurring_type: str = Form(None),
-    recurring_days: list[str] = Form([]),
-    recurring_end_date: str = Form(None),
     campaign: str = Form(None),
-    media: list[UploadFile] = File([]),
     authorization: str = Header(...),
     db: Session = Depends(get_db)
 ):
-    # --- AUTHENTICATION ---
+    # ✅ Authorization check
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Authorization header missing or invalid")
     token = authorization.split("Bearer ")[1]
@@ -42,42 +50,82 @@ async def create_post(
     user_id = user["id"]
 
     try:
-        # --- CREATE POST ---
+        # ✅ Handle empty scheduled_datetime → current local time
+        if not scheduled_datetime or scheduled_datetime.strip() == "":
+            scheduled_dt_obj = datetime.now()
+            post_status = "published_immediately"
+        else:
+            scheduled_dt_obj = datetime.fromisoformat(scheduled_datetime)
+            post_status = "scheduled"
+
+        # ✅ Save to database
         post = Post(
             content=content,
-            scheduled_datetime=datetime.fromisoformat(scheduled_datetime),
-            is_recurring=is_recurring,
-            recurring_type=recurring_type,
-            recurring_end_date=datetime.fromisoformat(recurring_end_date) if recurring_end_date else None,
+            url=url,
+            scheduled_datetime=scheduled_dt_obj,
             campaign=campaign,
             user_id=user_id,
         )
+        
+
+        # ✅ Facebook Graph API Posting
+        if "facebook" in platforms and PAGE_ACCESS_TOKEN and PAGE_ID:
+            media_fbid = None
+
+            # 📤 1. Upload photo (if URL exists)
+            if url:
+                photo_url = f"{GRAPH_API_BASE}/{PAGE_ID}/photos"
+                photo_payload = {
+                    "url": url,
+                    "published": "false",   # always unpublished first
+                    "access_token": PAGE_ACCESS_TOKEN
+                }
+                photo_res = requests.post(photo_url, json=photo_payload)
+                if photo_res.status_code != 200:
+                    print("❌ Photo upload error:", photo_res.text)
+                    raise HTTPException(status_code=500, detail="Failed to upload photo to Facebook")
+
+                media_fbid = photo_res.json().get("id")
+                print("✅ Uploaded media_fbid:", media_fbid)
+
+            # 📢 2. Create the actual post
+            feed_url = f"{GRAPH_API_BASE}/{PAGE_ID}/feed"
+            feed_payload = {
+                "message": content,
+                "access_token": PAGE_ACCESS_TOKEN
+            }
+
+            # 🧠 If scheduled date provided → schedule post
+            if scheduled_datetime and scheduled_datetime.strip() != "":
+                scheduled_unix = int(scheduled_dt_obj.astimezone(timezone.utc).timestamp())
+                feed_payload["published"] = "false"
+                feed_payload["scheduled_publish_time"] = scheduled_unix
+            # 🧠 Else → post immediately (no published=false, no scheduled_publish_time)
+
+            if media_fbid:
+                feed_payload["attached_media"] = [{"media_fbid": media_fbid}]
+
+            feed_res = requests.post(feed_url, json=feed_payload)
+            if feed_res.status_code != 200:
+                print("❌ Feed post error:", feed_res.text)
+                raise HTTPException(status_code=500, detail="Failed to publish post on Facebook")
+
+            print("✅ Facebook post created:", feed_res.json())
+            
         db.add(post)
         db.commit()
         db.refresh(post)
+        print(f"✅ Post created with ID: {post.id}")
 
-        # --- PLATFORMS ---
         for platform in platforms:
             db.add(PostPlatform(post_id=post.id, platform=platform))
-
-        # --- RECURRING DAYS ---
-        for day in recurring_days:
-            db.add(RecurringDay(post_id=post.id, day=day))
-
-        # --- MEDIA UPLOAD ---
-        for file in media:
-            filename = f"{post.id}_{file.filename}"
-            file_path = os.path.join(UPLOAD_DIR, filename)
-            with open(file_path, "wb") as f:
-                f.write(await file.read())
-            file_type = file.content_type.split("/")[0]
-            db.add(Media(post_id=post.id, file_path=file_path, file_type=file_type))
-
         db.commit()
-        return {"id": post.id, "status": "scheduled"}
+        return {"id": post.id, "status": post_status}
+
     except Exception as e:
         db.rollback()
-        return {"error": str(e)}
+        print("❌ DB Error:", e)
+        raise HTTPException(status_code=500, detail=str(e))
     finally:
         db.close()
 
@@ -103,13 +151,14 @@ async def get_scheduled_posts(db: Session = Depends(get_db), authorization: str 
                 "type": m.file_type,
                 "url": f"/{m.file_path}"  # You may want to serve these files via a static route
             })
+        status = "published" if post.scheduled_datetime < datetime.utcnow() else "scheduled"
         result.append({
             "id": post.id,
             "content": post.content,
             "platforms": platforms,
             "campaign": post.campaign,
             "scheduled_datetime": post.scheduled_datetime.isoformat(),
-            "status": "scheduled",
+            "status": status,
             "media_count": len(media_objs),
             "media": media_objs,
         })

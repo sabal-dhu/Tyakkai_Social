@@ -365,81 +365,79 @@ async def logout(request: Request):
     response.delete_cookie("token")
     return response
 
-#code for connecting facebook
-FB_CLIENT_ID = os.getenv("FACEBOOK_APP_ID")
-FB_CLIENT_SECRET = os.getenv("FACEBOOK_APP_SECRET")
-REDIRECT_URI_FB = os.getenv("REDIRECT_URI_FB")
+FACEBOOK_APP_ID = os.getenv("FACEBOOK_APP_ID", "YOUR_APP_ID")
+FACEBOOK_APP_SECRET = os.getenv("FACEBOOK_APP_SECRET", "YOUR_APP_SECRET")
+REDIRECT_URI = "http://localhost:8000/auth/facebook/callback"  # must match Facebook app settings
 
-
+# 1️⃣ Step: Redirect to Facebook Login
 @router.get("/auth/facebook/login")
-def facebook_login(state: str = ""):
-    fb_auth_url = (
-        f"https://www.facebook.com/v19.0/dialog/oauth"
-        f"?client_id={FB_CLIENT_ID}"
-        f"&redirect_uri={REDIRECT_URI_FB}"
-        f"&scope=pages_show_list,pages_manage_posts,pages_read_engagement,"
-        f"instagram_basic,instagram_content_publish"
-        f"&state={state}"
+async def facebook_login():
+    auth_url = (
+        "https://www.facebook.com/v23.0/dialog/oauth"
+        f"?client_id={FACEBOOK_APP_ID}"
+        f"&redirect_uri={REDIRECT_URI}"
+        "&scope=pages_show_list,pages_read_engagement,pages_manage_posts"
+        "&response_type=code"
     )
-    return RedirectResponse(fb_auth_url)
+    return RedirectResponse(url=auth_url)
 
 
+# 2️⃣ Step: Handle OAuth Callback
 @router.get("/auth/facebook/callback")
-def facebook_callback(request: Request, db: Session = Depends(get_db)):
-    code = request.query_params.get("code")
-    state = request.query_params.get("state")  # This is your JWT
-    
+async def facebook_callback(code: str = None, error: str = None):
+    if error:
+        raise HTTPException(status_code=400, detail=f"Facebook login error: {error}")
+    if not code:
+        raise HTTPException(status_code=400, detail="No code provided by Facebook")
 
-    # Step 1: Exchange code for access token
-    token_url = "https://graph.facebook.com/v19.0/oauth/access_token"
-    params = {
-        "client_id": FB_CLIENT_ID,
-        "redirect_uri": REDIRECT_URI_FB,
-        "client_secret": FB_CLIENT_SECRET,
-        "code": code
-    }
-    res = requests.get(token_url, params=params)
-    data = res.json()
-    user_access_token = data.get("access_token")
-    token_expiry = data.get("expires_in")
+    async with httpx.AsyncClient() as client:
+        # 3️⃣ Exchange code for a short-lived user access token
+        token_url = (
+            f"https://graph.facebook.com/v23.0/oauth/access_token"
+            f"?client_id={FACEBOOK_APP_ID}"
+            f"&redirect_uri={REDIRECT_URI}"
+            f"&client_secret={FACEBOOK_APP_SECRET}"
+            f"&code={code}"
+        )
+        token_resp = await client.get(token_url)
+        token_data = token_resp.json()
 
-    if not user_access_token:
-        return JSONResponse({"error": "Token not found"}, status_code=400)
+        if "access_token" not in token_data:
+            raise HTTPException(status_code=400, detail="Failed to obtain access token")
 
-    # Step 2: Get Pages the user manages
-    pages_url = "https://graph.facebook.com/v19.0/me/accounts"
-    pages_res = requests.get(pages_url, params={"access_token": user_access_token})
-    pages_data = pages_res.json()
+        short_lived_token = token_data["access_token"]
 
-    # For demo, just use the first page/account
-    if not pages_data.get("data"):
-        return JSONResponse({"error": "No pages found"}, status_code=400)
-    page = pages_data["data"][0]
-    account_id = page["id"]
-    account_name = page["name"]
+        # 4️⃣ Exchange short-lived token for long-lived user token
+        long_token_url = (
+            "https://graph.facebook.com/v20.0/oauth/access_token"
+            f"?grant_type=fb_exchange_token"
+            f"&client_id={FACEBOOK_APP_ID}"
+            f"&client_secret={FACEBOOK_APP_SECRET}"
+            f"&fb_exchange_token={short_lived_token}"
+        )
+        long_token_resp = await client.get(long_token_url)
+        long_token_data = long_token_resp.json()
 
-    user_data = get_current_user(state, db)
-    user_id = user_data["id"]
+        if "access_token" not in long_token_data:
+            raise HTTPException(status_code=400, detail="Failed to exchange for long-lived token")
 
-    # Store in SocialAccount table
-    social_account = SocialAccount(
-        user_id=user_id,
-        platform_name="facebook",
-        access_token=user_access_token,
-        refresh_token=None,
-        token_expiry=datetime.utcnow() + timedelta(seconds=token_expiry) if token_expiry else None,
-        account_id=account_id,
-        connected_at=datetime.utcnow()
-    )
-    db.add(social_account)
-    db.commit()
+        long_lived_token = long_token_data["access_token"]
 
-    # Optionally, create a JWT for this user (or use existing login logic)
-    # Example:
-    # access_token = create_access_token(data={"sub": user_id, "platform": "facebook"})
-    # For now, just redirect to dashboard
-    redirect_url = f"http://localhost:3000/dashboard?access_token={user_access_token}"
-    return RedirectResponse(url=redirect_url)
+        # 5️⃣ Get user's pages and page access tokens
+        pages_url = f"https://graph.facebook.com/v20.0/me/accounts?access_token={long_lived_token}"
+        pages_resp = await client.get(pages_url)
+        pages_data = pages_resp.json()
+
+        if "data" not in pages_data:
+            raise HTTPException(status_code=400, detail="Failed to retrieve page access tokens")
+
+        return JSONResponse(
+            content={
+                "message": "Login successful",
+                "long_lived_user_access_token": long_lived_token,
+                "pages": pages_data["data"],  # includes page access tokens
+            }
+        )
 
 def get_user_pages(access_token: str):
     res = requests.get(

@@ -55,7 +55,8 @@ class Post(Base):
     __tablename__ = "posts"
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     content = Column(String, nullable=False)
-    scheduled_datetime = Column(DateTime, nullable=False)
+    url = Column(String, nullable=True)
+    scheduled_datetime = Column(DateTime, nullable=True)
     is_recurring = Column(Boolean, default=False)
     recurring_type = Column(String, nullable=True)
     recurring_end_date = Column(DateTime, nullable=True)

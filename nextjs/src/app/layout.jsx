@@ -26,23 +26,22 @@ export default function RootLayout({ children }) {
             --bs-primary-rgb: 106, 34, 197 !important;
           }
           .bg-primary {
-  background-color: #2563eb !important;
-}
-.text-primary {
-  color: #2563eb !important;
-}
-.btn-primary {
-  background-color: #2563eb !important;
-  border-color: #2563eb !important;
-}
-.btn-outline-primary {
-  color: #2563eb !important;
-  border-color: #2563eb !important;
-}
-.btn-outline-primary:hover {
-  background-color: #2563eb !important;
-  color: white !important;
-
+            background-color: #0B7077 !important;
+          }
+          .text-primary {
+            color: #0B7077 !important;
+          }
+          .btn-primary {
+            background-color: #0B7077 !important;
+            border-color: #0B7077 !important;
+          }
+          .btn-outline-primary {
+            color: #0B7077 !important;
+            border-color: #0B7077 !important;
+          }
+          .btn-outline-primary:hover {
+            background-color: #0B7077 !important;
+            color: white !important;
           }
         `}</style>
       </head>
