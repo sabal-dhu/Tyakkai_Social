@@ -1,0 +1,142 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e5]:
+      - img "Tyakkai Social" [ref=e8]
+      - list [ref=e10]:
+        - listitem [ref=e11]:
+          - link "Dashboard" [ref=e12] [cursor=pointer]:
+            - /url: /dashboard
+            - img [ref=e13] [cursor=pointer]
+            - text: Dashboard
+        - listitem [ref=e18]:
+          - link "Schedule Posts" [ref=e19] [cursor=pointer]:
+            - /url: /dashboard/schedule
+            - img [ref=e20] [cursor=pointer]
+            - text: Schedule Posts
+        - listitem [ref=e22]:
+          - link "Analytics" [ref=e23] [cursor=pointer]:
+            - /url: /dashboard/analytics
+            - img [ref=e24] [cursor=pointer]
+            - text: Analytics
+        - listitem [ref=e25]:
+          - link "Content Calendar" [ref=e26] [cursor=pointer]:
+            - /url: /dashboard/content
+            - img [ref=e27] [cursor=pointer]
+            - text: Content Calendar
+        - listitem [ref=e29]:
+          - link "Hashtag Suggestions" [ref=e30] [cursor=pointer]:
+            - /url: /dashboard/hashtags
+            - img [ref=e31] [cursor=pointer]
+            - text: Hashtag Suggestions
+        - listitem [ref=e34]:
+          - link "2 unread notifications Notifications" [ref=e35] [cursor=pointer]:
+            - /url: /dashboard/notifications
+            - generic [ref=e36] [cursor=pointer]:
+              - img [ref=e37] [cursor=pointer]
+              - generic [ref=e40] [cursor=pointer]:
+                - text: "2"
+                - generic [ref=e41] [cursor=pointer]: unread notifications
+            - text: Notifications
+      - generic [ref=e43]:
+        - generic [ref=e44]:
+          - generic [ref=e46]: u
+          - generic [ref=e47]:
+            - paragraph [ref=e48]: user
+            - paragraph [ref=e49]: user@example.com
+        - button "Logout" [ref=e50] [cursor=pointer]:
+          - img [ref=e51] [cursor=pointer]
+    - generic [ref=e54]:
+      - banner [ref=e55]:
+        - generic [ref=e56]:
+          - heading "Dashboard" [level=1] [ref=e57]
+          - generic [ref=e58]:
+            - button "1 unread notifications" [ref=e60] [cursor=pointer]:
+              - img [ref=e61] [cursor=pointer]
+              - generic [ref=e64] [cursor=pointer]:
+                - text: "1"
+                - generic [ref=e65] [cursor=pointer]: unread notifications
+            - link "U" [ref=e66] [cursor=pointer]:
+              - /url: /dashboard/profile
+              - generic [ref=e68] [cursor=pointer]: U
+      - main [ref=e69]:
+        - generic [ref=e70]:
+          - heading "Overview" [level=2] [ref=e71]
+          - generic [ref=e72]:
+            - generic [ref=e75]:
+              - heading "Total Followers" [level=6] [ref=e76]
+              - heading "1K" [level=2] [ref=e77]
+              - paragraph [ref=e78]:
+                - img [ref=e79]
+                - text: 12% from last month
+            - generic [ref=e84]:
+              - heading "Engagement Rate" [level=6] [ref=e85]
+              - heading "4.2%" [level=2] [ref=e86]
+              - paragraph [ref=e87]:
+                - img [ref=e88]
+                - text: 0.8% from last month
+            - generic [ref=e93]:
+              - heading "Total Posts" [level=6] [ref=e94]
+              - heading "237" [level=2] [ref=e95]
+              - paragraph [ref=e96]:
+                - img [ref=e97]
+                - text: 24 new this month
+            - generic [ref=e102]:
+              - heading "Scheduled Posts" [level=6] [ref=e103]
+              - heading "12" [level=2] [ref=e104]
+              - paragraph [ref=e105]: Next post in 3 hours
+          - heading "Connected Platforms" [level=3] [ref=e106]
+          - generic [ref=e107]:
+            - generic [ref=e110]:
+              - generic [ref=e111]:
+                - generic [ref=e112]:
+                  - img [ref=e114]
+                  - heading "Facebook" [level=5] [ref=e116]
+                - generic [ref=e117]: Connected
+              - generic [ref=e118]:
+                - generic [ref=e119]:
+                  - paragraph [ref=e120]: Followers
+                  - paragraph [ref=e121]: 5.2K
+                - generic [ref=e122]:
+                  - paragraph [ref=e123]: Engagement
+                  - paragraph [ref=e124]: 3.8%
+                - generic [ref=e125]:
+                  - paragraph [ref=e126]: Posts
+                  - paragraph [ref=e127]: "42"
+            - text: /* Connect New Platform Section - Horizontal */
+            - generic [ref=e132]:
+              - heading "Connect New Platform" [level=5] [ref=e133]
+              - button "Connect Platform" [ref=e134] [cursor=pointer]
+          - heading "Upcoming Posts" [level=3] [ref=e135]
+          - generic [ref=e136]:
+            - generic [ref=e139]:
+              - generic [ref=e140]:
+                - generic [ref=e141]:
+                  - generic [ref=e142]: Instagram
+                  - generic [ref=e143]: Today, 3:00 PM
+                - paragraph [ref=e144]: New product launch! Check out our latest social media management features...
+                - img "Post media" [ref=e147]
+              - generic [ref=e148]:
+                - button [ref=e149] [cursor=pointer]:
+                  - img [ref=e150] [cursor=pointer]
+                - button [ref=e153] [cursor=pointer]:
+                  - img [ref=e154] [cursor=pointer]
+            - generic [ref=e159]:
+              - generic [ref=e160]:
+                - generic [ref=e161]:
+                  - generic [ref=e162]: Facebook
+                  - generic [ref=e163]: Tomorrow, 10:00 AM
+                - paragraph [ref=e164]: Tips for small businesses...
+              - generic [ref=e165]:
+                - button [ref=e166] [cursor=pointer]:
+                  - img [ref=e167] [cursor=pointer]
+                - button [ref=e170] [cursor=pointer]:
+                  - img [ref=e171] [cursor=pointer]
+            - link "View All Scheduled Posts" [ref=e175] [cursor=pointer]:
+              - /url: /dashboard/schedule
+  - alert [ref=e176]
+  - button "Open Next.js Dev Tools" [ref=e182] [cursor=pointer]:
+    - img [ref=e183] [cursor=pointer]
+```
