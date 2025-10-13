@@ -425,7 +425,7 @@ export default function DashboardOverview() {
           </div>
         ))}
 
-        /* Connect New Platform Section - Horizontal */
+        {/* Connect New Platform Section - Horizontal */}
           <div className="col-12 mb-3">
             <div className="card">
               <div className="card-body">
