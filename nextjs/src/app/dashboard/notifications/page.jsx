@@ -1,14 +1,14 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import DashboardLayout from "@/components/dashboard-layout"
-import api from "@/api"
+import { useState, useEffect } from "react";
+import DashboardLayout from "@/components/dashboard-layout";
+import api from "@/api";
 
 export default function NotificationsPage() {
-  const [notifications, setNotifications] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const [filter, setFilter] = useState("all")
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [filter, setFilter] = useState("all");
 
   // Dummy notifications data
   const dummyNotifications = [
@@ -50,7 +50,8 @@ export default function NotificationsPage() {
     {
       id: 6,
       type: "engagement_update",
-      message: "Your Facebook post is performing better than 80% of your previous posts",
+      message:
+        "Your Facebook post is performing better than 80% of your previous posts",
       created_at: "2023-05-14T13:25:00Z",
       is_read: true,
     },
@@ -68,51 +69,58 @@ export default function NotificationsPage() {
       created_at: "2023-05-12T16:40:00Z",
       is_read: true,
     },
-  ]
+  ];
 
   useEffect(() => {
     const fetchNotifications = async () => {
-      setLoading(true)
+      setLoading(true);
       try {
         // Try to fetch from API first
-        let notificationsData = null
+        let notificationsData = null;
         try {
-          const token = localStorage.getItem("access_token")
-          const response = await api.get(`/api/notifications?filter=${filter}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          })
-          notificationsData = response.data
+          const token = localStorage.getItem("access_token");
+          const response = await api.get(
+            `/api/notifications?filter=${filter}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+          notificationsData = response.data;
         } catch (error) {
-          console.log("API not available, using dummy data")
+          console.log("API not available, using dummy data");
         }
 
         // If API call failed, use dummy data
         if (!notificationsData) {
           // Filter dummy data based on the selected filter
           if (filter === "unread") {
-            notificationsData = dummyNotifications.filter((notification) => !notification.is_read)
+            notificationsData = dummyNotifications.filter(
+              (notification) => !notification.is_read
+            );
           } else if (filter === "read") {
-            notificationsData = dummyNotifications.filter((notification) => notification.is_read)
+            notificationsData = dummyNotifications.filter(
+              (notification) => notification.is_read
+            );
           } else {
-            notificationsData = dummyNotifications
+            notificationsData = dummyNotifications;
           }
         }
 
-        setNotifications(notificationsData)
+        setNotifications(notificationsData);
       } catch (err) {
-        console.error("Error fetching notifications:", err)
-        setError("Failed to load notifications. Please try again later.")
+        console.error("Error fetching notifications:", err);
+        setError("Failed to load notifications. Please try again later.");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchNotifications()
-  }, [filter])
+    fetchNotifications();
+  }, [filter]);
 
   const markAsRead = async (id) => {
     try {
-      const token = localStorage.getItem("access_token")
+      const token = localStorage.getItem("access_token");
       // Try API call first
       try {
         await api.put(
@@ -120,25 +128,27 @@ export default function NotificationsPage() {
           {},
           {
             headers: { Authorization: `Bearer ${token}` },
-          },
-        )
+          }
+        );
       } catch (error) {
-        console.log("API not available, updating local state only")
+        console.log("API not available, updating local state only");
       }
 
       // Update local state
       const updatedNotifications = notifications.map((notification) =>
-        notification.id === id ? { ...notification, is_read: true } : notification,
-      )
-      setNotifications(updatedNotifications)
+        notification.id === id
+          ? { ...notification, is_read: true }
+          : notification
+      );
+      setNotifications(updatedNotifications);
     } catch (error) {
-      console.error("Error marking notification as read:", error)
+      console.error("Error marking notification as read:", error);
     }
-  }
+  };
 
   const markAllAsRead = async () => {
     try {
-      const token = localStorage.getItem("access_token")
+      const token = localStorage.getItem("access_token");
       // Try API call first
       try {
         await api.put(
@@ -146,91 +156,102 @@ export default function NotificationsPage() {
           {},
           {
             headers: { Authorization: `Bearer ${token}` },
-          },
-        )
+          }
+        );
       } catch (error) {
-        console.log("API not available, updating local state only")
+        console.log("API not available, updating local state only");
       }
 
       // Update local state
       const updatedNotifications = notifications.map((notification) => ({
         ...notification,
         is_read: true,
-      }))
-      setNotifications(updatedNotifications)
+      }));
+      setNotifications(updatedNotifications);
     } catch (error) {
-      console.error("Error marking all notifications as read:", error)
+      console.error("Error marking all notifications as read:", error);
     }
-  }
+  };
 
   const deleteNotification = async (id) => {
     try {
-      const token = localStorage.getItem("access_token")
+      const token = localStorage.getItem("access_token");
       // Try API call first
       try {
         await api.delete(`/api/notifications/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
-        })
+        });
       } catch (error) {
-        console.log("API not available, updating local state only")
+        console.log("API not available, updating local state only");
       }
 
       // Update local state
-      setNotifications(notifications.filter((notification) => notification.id !== id))
+      setNotifications(
+        notifications.filter((notification) => notification.id !== id)
+      );
     } catch (error) {
-      console.error("Error deleting notification:", error)
+      console.error("Error deleting notification:", error);
     }
-  }
+  };
 
   const deleteAllNotifications = async () => {
-    if (!confirm("Are you sure you want to delete all notifications?")) return
+    if (!confirm("Are you sure you want to delete all notifications?")) return;
 
     try {
-      const token = localStorage.getItem("access_token")
+      const token = localStorage.getItem("access_token");
       // Try API call first
       try {
         await api.delete("/api/notifications/delete-all", {
           headers: { Authorization: `Bearer ${token}` },
-        })
+        });
       } catch (error) {
-        console.log("API not available, updating local state only")
+        console.log("API not available, updating local state only");
       }
 
       // Update local state
-      setNotifications([])
+      setNotifications([]);
     } catch (error) {
-      console.error("Error deleting all notifications:", error)
+      console.error("Error deleting all notifications:", error);
     }
-  }
+  };
 
   // Format date to relative time (e.g., "2 hours ago")
   const formatRelativeTime = (dateString) => {
-    const date = new Date(dateString)
-    const now = new Date()
-    const diffInSeconds = Math.floor((now - date) / 1000)
+    // Parse the UTC date string
+    const utcDate = new Date(dateString);
+
+    // Nepal Time is UTC+5:45, which is 5*60 + 45 = 345 minutes = 20700000 ms
+    const nepalOffsetMs = 5 * 60 * 60 * 1000 + 45 * 60 * 1000;
+
+    // Convert UTC to Nepal Time
+    const localDate = new Date(utcDate.getTime() + nepalOffsetMs);
+
+    const now = new Date();
+
+    const diffInSeconds = Math.floor((now - localDate) / 1000);
 
     if (diffInSeconds < 60) {
-      return "just now"
+      return "just now";
     }
 
-    const diffInMinutes = Math.floor(diffInSeconds / 60)
+    const diffInMinutes = Math.floor(diffInSeconds / 60);
     if (diffInMinutes < 60) {
-      return `${diffInMinutes} minute${diffInMinutes > 1 ? "s" : ""} ago`
+      return `${diffInMinutes} minute${diffInMinutes > 1 ? "s" : ""} ago`;
     }
 
-    const diffInHours = Math.floor(diffInMinutes / 60)
+    const diffInHours = Math.floor(diffInMinutes / 60);
     if (diffInHours < 24) {
-      return `${diffInHours} hour${diffInHours > 1 ? "s" : ""} ago`
+      return `${diffInHours} hour${diffInHours > 1 ? "s" : ""} ago`;
     }
 
-    const diffInDays = Math.floor(diffInHours / 24)
+    const diffInDays = Math.floor(diffInHours / 24);
     if (diffInDays < 30) {
-      return `${diffInDays} day${diffInDays > 1 ? "s" : ""} ago`
+      return `${diffInDays} day${diffInDays > 1 ? "s" : ""} ago`;
     }
 
-    const diffInMonths = Math.floor(diffInDays / 30)
-    return `${diffInMonths} month${diffInMonths > 1 ? "s" : ""} ago`
-  }
+    const diffInMonths = Math.floor(diffInDays / 30);
+    return `${diffInMonths} month${diffInMonths > 1 ? "s" : ""} ago`;
+  };
 
   // Get icon based on notification type
   const getNotificationIcon = (type) => {
@@ -253,7 +274,7 @@ export default function NotificationsPage() {
               <polyline points="22 4 12 14.01 9 11.01" />
             </svg>
           </div>
-        )
+        );
       case "engagement_update":
         return (
           <div className="bg-primary bg-opacity-10 text-primary rounded-circle p-2">
@@ -271,7 +292,7 @@ export default function NotificationsPage() {
               <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
             </svg>
           </div>
-        )
+        );
       case "scheduled_reminder":
         return (
           <div className="bg-warning bg-opacity-10 text-warning rounded-circle p-2">
@@ -290,7 +311,7 @@ export default function NotificationsPage() {
               <polyline points="12 6 12 12 16 14" />
             </svg>
           </div>
-        )
+        );
       case "platform_connected":
         return (
           <div className="bg-info bg-opacity-10 text-info rounded-circle p-2">
@@ -309,7 +330,7 @@ export default function NotificationsPage() {
               <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
             </svg>
           </div>
-        )
+        );
       case "post_failed":
         return (
           <div className="bg-danger bg-opacity-10 text-danger rounded-circle p-2">
@@ -329,7 +350,7 @@ export default function NotificationsPage() {
               <line x1="9" y1="9" x2="15" y2="15" />
             </svg>
           </div>
-        )
+        );
       default:
         return (
           <div className="bg-secondary bg-opacity-10 text-secondary rounded-circle p-2">
@@ -349,24 +370,34 @@ export default function NotificationsPage() {
               <line x1="12" y1="8" x2="12.01" y2="8" />
             </svg>
           </div>
-        )
+        );
     }
-  }
+  };
 
   return (
     <DashboardLayout>
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="h4 mb-0">Notifications</h2>
         <div className="d-flex gap-2">
-          <select className="form-select form-select-sm" value={filter} onChange={(e) => setFilter(e.target.value)}>
+          <select
+            className="form-select form-select-sm"
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+          >
             <option value="all">All Notifications</option>
             <option value="unread">Unread</option>
             <option value="read">Read</option>
           </select>
-          <button className="btn btn-sm btn-outline-primary" onClick={markAllAsRead}>
+          <button
+            className="btn btn-sm btn-outline-primary"
+            onClick={markAllAsRead}
+          >
             Mark All as Read
           </button>
-          <button className="btn btn-sm btn-outline-danger" onClick={deleteAllNotifications}>
+          <button
+            className="btn btn-sm btn-outline-danger"
+            onClick={deleteAllNotifications}
+          >
             Clear All
           </button>
         </div>
@@ -388,20 +419,32 @@ export default function NotificationsPage() {
             {notifications.map((notification) => (
               <div
                 key={notification.id}
-                className={`list-group-item d-flex align-items-start p-3 ${!notification.is_read ? "bg-light" : ""}`}
+                className={`list-group-item d-flex align-items-start p-3 ${
+                  !notification.is_read ? "bg-light" : ""
+                }`}
               >
-                <div className="me-3">{getNotificationIcon(notification.type)}</div>
+                <div className="me-3">
+                  {getNotificationIcon(notification.type)}
+                </div>
                 <div className="flex-grow-1 me-3">
                   <p className="mb-1">{notification.message}</p>
-                  <small className="text-muted">{formatRelativeTime(notification.created_at)}</small>
+                  <small className="text-muted">
+                    {formatRelativeTime(notification.created_at)}
+                  </small>
                 </div>
                 <div className="d-flex">
                   {!notification.is_read && (
-                    <button className="btn btn-sm btn-outline-primary me-2" onClick={() => markAsRead(notification.id)}>
+                    <button
+                      className="btn btn-sm btn-outline-primary me-2"
+                      onClick={() => markAsRead(notification.id)}
+                    >
                       Mark as Read
                     </button>
                   )}
-                  <button className="btn btn-sm btn-outline-danger" onClick={() => deleteNotification(notification.id)}>
+                  <button
+                    className="btn btn-sm btn-outline-danger"
+                    onClick={() => deleteNotification(notification.id)}
+                  >
                     Delete
                   </button>
                 </div>
@@ -411,5 +454,5 @@ export default function NotificationsPage() {
         </div>
       )}
     </DashboardLayout>
-  )
+  );
 }

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Body, Depends, Request
+from fastapi import APIRouter, HTTPException, Body, Depends, Request, Header
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, EmailStr
 from db_utils.db import User, SessionLocal
@@ -9,6 +9,8 @@ import os
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from apis.authentication import get_current_user
+from passlib.hash import bcrypt
 
 router = APIRouter(prefix="/api")
 
@@ -116,3 +118,32 @@ async def reset_password(
     user.password_hash = pwd_context.hash(request.new_password)
     db.commit()
     return {"message": "Password reset successful"}
+
+@router.post("/change-password")
+async def change_password(
+    data: dict = Body(...),
+    authorization: str = Header(...),
+    db: Session = Depends(get_db)
+):
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Authorization header missing or invalid")
+    token = authorization.split("Bearer ")[1]
+    user_data = get_current_user(token, db)
+    user = db.query(User).filter(User.id == user_data["id"]).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    old_password = data.get("old_password")
+    new_password = data.get("new_password")
+
+    if not old_password or not new_password:
+        raise HTTPException(status_code=400, detail="Old and new password required")
+
+    # Check old password
+    if not bcrypt.verify(old_password, user.password_hash):
+        raise HTTPException(status_code=400, detail="Old password is incorrect")
+
+    # Update password
+    user.password_hash = bcrypt.hash(new_password)
+    db.commit()
+    return {"success": True, "message": "Password changed successfully"}

@@ -65,9 +65,9 @@ export default function ProfilePage() {
         // If API call failed, use dummy data
         if (!userData) {
           userData = {
-            name: "John Doe",
-            email: "john@example.com",
-            company_name: "Acme Inc",
+            name: "Sabal Dhungana",
+            email: "Sabaldhungana2003@gmail.com",
+            company_name: "Tyakkai Social",
           };
         }
 
@@ -75,12 +75,12 @@ export default function ProfilePage() {
           platformsData = {
             facebook: {
               connected: true,
-              username: "johndoe",
+              username: "sabal.dhungana",
               token: "dummy-token-fb",
             },
             instagram: { connected: false, username: "", token: null },
             twitter: {
-              connected: true,
+              connected: false,
               username: "johndoe_twitter",
               token: "dummy-token-tw",
             },
@@ -504,7 +504,10 @@ export default function ProfilePage() {
               </div>
               <div className="card-body">
                 <div className="d-grid gap-2">
-                  <button className="btn btn-outline-secondary">
+                  <button
+                    className="btn btn-outline-secondary"
+                    onClick={() => router.push("/dashboard/change-password")}
+                  >
                     Change Password
                   </button>
                 </div>

@@ -1,6 +1,6 @@
 from typing import List, Dict, Optional
 from fastapi import APIRouter, Query, UploadFile, File, Body, Form, Depends, HTTPException, Header
-from db_utils.db import SessionLocal, Post, PostPlatform, RecurringDay, Media, User
+from db_utils.db import SessionLocal, Post, PostPlatform, RecurringDay, Media, User, Notification
 from datetime import datetime, timezone
 import os
 from sqlalchemy.orm import Session
@@ -131,6 +131,16 @@ async def create_post(
 
         for platform in platforms:
             db.add(PostPlatform(post_id=post.id, platform=platform))
+        db.commit()
+
+        # Notify the user
+        notification = Notification(
+            user_id=user_id,
+            type="post_scheduled" if post_status == "scheduled" else "post_published",
+            message="Your post was scheduled." if post_status == "scheduled" else "Your post was published.",
+            is_read=False
+        )
+        db.add(notification)
         db.commit()
 
         return {"id": post.id, "status": post_status}
@@ -479,32 +489,112 @@ async def generate_hashtags_api(
 
 # 8. Notification Endpoints
 @router.get("/notifications")
-async def get_notifications(filter: str = Query("all")):
+async def get_notifications(
+    db: Session = Depends(get_db),
+    authorization: str = Header(...)
+):
+    # Authenticate user
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Authorization header missing or invalid")
+    token = authorization.split("Bearer ")[1]
+    user = get_current_user(token, db)
+    user_id = user["id"]
+
+    notifications = db.query(Notification).filter(Notification.user_id == user_id).order_by(Notification.created_at.desc()).all()
     return [
         {
-            "id": 1,
-            "type": "post_published",
-            "message": "Your post was published",
-            "is_read": False
+            "id": n.id,
+            "type": n.type,
+            "message": n.message,
+            "is_read": n.is_read,
+            "created_at": n.created_at.isoformat()
         }
+        for n in notifications
     ]
 
-@router.post("/notifications/{id}/read")
-async def mark_notification_read(id: int):
+@router.put("/notifications/{id}/read")
+async def mark_notification_read(
+    id: int,
+    db: Session = Depends(get_db),
+    authorization: str = Header(...)
+):
+    # Authenticate user
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Authorization header missing or invalid")
+    token = authorization.split("Bearer ")[1]
+    user = get_current_user(token, db)
+    user_id = user["id"]
+
+    notification = db.query(Notification).filter(Notification.id == id, Notification.user_id == user_id).first()
+    if not notification:
+        raise HTTPException(status_code=404, detail="Notification not found")
+    notification.is_read = True
+    db.commit()
     return {"status": "read", "id": id}
 
 @router.post("/notifications/read-all")
-async def mark_all_notifications_read():
+async def mark_all_notifications_read(
+    db: Session = Depends(get_db),
+    authorization: str = Header(...)
+):
+    # Authenticate user
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Authorization header missing or invalid")
+    token = authorization.split("Bearer ")[1]
+    user = get_current_user(token, db)
+    user_id = user["id"]
+
+    db.query(Notification).filter(Notification.user_id == user_id, Notification.is_read == False).update({"is_read": True})
+    db.commit()
     return {"status": "all read"}
 
 @router.delete("/notifications/{id}")
-async def delete_notification(id: int):
+async def delete_notification(
+    id: int,
+    db: Session = Depends(get_db),
+    authorization: str = Header(...)
+):
+    # Authenticate user
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Authorization header missing or invalid")
+    token = authorization.split("Bearer ")[1]
+    user = get_current_user(token, db)
+    user_id = user["id"]
+
+    notification = db.query(Notification).filter(Notification.id == id, Notification.user_id == user_id).first()
+    if not notification:
+        raise HTTPException(status_code=404, detail="Notification not found")
+    db.delete(notification)
+    db.commit()
     return {"status": "deleted", "id": id}
 
 @router.delete("/notifications/delete-all")
-async def delete_all_notifications():
+async def delete_all_notifications(
+    db: Session = Depends(get_db),
+    authorization: str = Header(...)
+):
+    # Authenticate user
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Authorization header missing or invalid")
+    token = authorization.split("Bearer ")[1]
+    user = get_current_user(token, db)
+    user_id = user["id"]
+
+    db.query(Notification).filter(Notification.user_id == user_id).delete()
+    db.commit()
     return {"status": "all deleted"}
 
 @router.get("/notifications/unread/count")
-async def get_unread_notifications_count():
-    return {"count": 2}
+async def get_unread_notifications_count(
+    db: Session = Depends(get_db),
+    authorization: str = Header(...)
+):
+    # Authenticate user
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Authorization header missing or invalid")
+    token = authorization.split("Bearer ")[1]
+    user = get_current_user(token, db)
+    user_id = user["id"]
+
+    count = db.query(Notification).filter(Notification.user_id == user_id, Notification.is_read == False).count()
+    return {"count": count}

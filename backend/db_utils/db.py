@@ -40,6 +40,7 @@ class User(Base):
     created_at = Column(DateTime, server_default=func.now())  # Auto-set creation time
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())  # Auto-set update time
     active = Column(Boolean, default=True, nullable=False)
+
 class SocialAccount(Base):
     __tablename__ = "social_accounts"
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
@@ -91,6 +92,17 @@ class Media(Base):
     file_path = Column(String, nullable=False)
     file_type = Column(String, nullable=False)  # image, video, etc.
     post = relationship("Post", back_populates="media")
+
+class Notification(Base):
+    __tablename__ = "notifications"
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    type = Column(String, nullable=False)  # e.g. "post_scheduled", "post_published"
+    message = Column(String, nullable=False)
+    is_read = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    user = relationship("User")
 
 # Create tables if they don't exist
 Base.metadata.create_all(bind=engine)
