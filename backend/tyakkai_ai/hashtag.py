@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from enum import Enum
 from pydantic import BaseModel, Field
 from typing import List
+import re
 
 # ------------------------------
 # Define Pydantic Models
@@ -92,6 +93,27 @@ class TyakkaiHashtagAPI:
             )
         except KeyError:
             raise ValueError(f"Invalid platform. Must be one of: {[p.value for p in SocialPlatform]}")
+
+    async def generate_hashtags_litellm(self, content: str, platform: str, industry: str, count: int = 15) -> list[str]:
+        import litellm
+
+        prompt = (
+            f"Generate {count} relevant hashtags for the following {industry} content on {platform}. "
+            "Only return the hashtags, separated by commas. Do not include explanations.\n"
+            f"Content: {content}"
+        )
+
+        response = litellm.completion(
+            model=self.model_name,
+            messages=[{"role": "user", "content": prompt}],
+            api_key=self.api_key,
+            api_base=self.api_base,
+        )
+        # Extract hashtags from the response
+        text = response['choices'][0]['message']['content']
+        # Split by comma, strip whitespace, ensure starts with #
+        hashtags = [h.strip() if h.strip().startswith("#") else f"#{h.strip().lstrip('#')}" for h in text.split(",") if h.strip()]
+        return hashtags
 
 # ------------------------------
 # Main Execution

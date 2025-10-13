@@ -1,14 +1,15 @@
 from typing import List, Dict, Optional
 from fastapi import APIRouter, Query, UploadFile, File, Body, Form, Depends, HTTPException, Header
 from db_utils.db import SessionLocal, Post, PostPlatform, RecurringDay, Media, User
-from datetime import datetime, timedelta
+from datetime import datetime, timezone
 import os
 from sqlalchemy.orm import Session
 from apis.authentication import get_current_user
 from tyakkai_ai.hashtag import TyakkaiHashtagAPI
 from dotenv import load_dotenv
 import requests
-from datetime import datetime
+import time
+
 
 
 router = APIRouter(prefix="/api")
@@ -30,7 +31,7 @@ load_dotenv()
 PAGE_ACCESS_TOKEN = os.getenv("PAGE_ACCESS_TOKEN")
 PAGE_ID = os.getenv("PAGE_ID")
 
-GRAPH_API_BASE = "https://graph.facebook.com/v23.0"
+GRAPH_API_BASE = "https://graph.facebook.com/v24.0"
 
 @router.post("/posts")
 async def create_post(
@@ -50,7 +51,7 @@ async def create_post(
     user_id = user["id"]
 
     try:
-        # ✅ Handle empty scheduled_datetime → current local time
+        # ✅ Handle empty scheduled_datetime → use current local time
         if not scheduled_datetime or scheduled_datetime.strip() == "":
             scheduled_dt_obj = datetime.now()
             post_status = "published_immediately"
@@ -66,7 +67,6 @@ async def create_post(
             campaign=campaign,
             user_id=user_id,
         )
-        
 
         # ✅ Facebook Graph API Posting
         if "facebook" in platforms and PAGE_ACCESS_TOKEN and PAGE_ID:
@@ -77,7 +77,7 @@ async def create_post(
                 photo_url = f"{GRAPH_API_BASE}/{PAGE_ID}/photos"
                 photo_payload = {
                     "url": url,
-                    "published": "false",   # always unpublished first
+                    "published": False,  # boolean false (unpublished)
                     "access_token": PAGE_ACCESS_TOKEN
                 }
                 photo_res = requests.post(photo_url, json=photo_payload)
@@ -95,23 +95,35 @@ async def create_post(
                 "access_token": PAGE_ACCESS_TOKEN
             }
 
-            # 🧠 If scheduled date provided → schedule post
+            # 🧠 Handle scheduling or immediate posting
             if scheduled_datetime and scheduled_datetime.strip() != "":
                 scheduled_unix = int(scheduled_dt_obj.astimezone(timezone.utc).timestamp())
-                feed_payload["published"] = "false"
+                now_utc = int(datetime.now(timezone.utc).timestamp())
+                min_allowed = now_utc + 900  # 15 minutes buffer
+
+                # Ensure valid Facebook scheduling window
+                if scheduled_unix < min_allowed:
+                    scheduled_unix = min_allowed
+
+                feed_payload["published"] = False
                 feed_payload["scheduled_publish_time"] = scheduled_unix
-            # 🧠 Else → post immediately (no published=false, no scheduled_publish_time)
+                print(f"🕒 Scheduled post at UTC {time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(scheduled_unix))}")
+            else:
+                # Post immediately
+                feed_payload["published"] = True
 
             if media_fbid:
                 feed_payload["attached_media"] = [{"media_fbid": media_fbid}]
 
             feed_res = requests.post(feed_url, json=feed_payload)
+            print("feed_res.status_code:", feed_res.status_code)
             if feed_res.status_code != 200:
                 print("❌ Feed post error:", feed_res.text)
                 raise HTTPException(status_code=500, detail="Failed to publish post on Facebook")
 
             print("✅ Facebook post created:", feed_res.json())
-            
+
+        # ✅ DB commit
         db.add(post)
         db.commit()
         db.refresh(post)
@@ -120,6 +132,7 @@ async def create_post(
         for platform in platforms:
             db.add(PostPlatform(post_id=post.id, platform=platform))
         db.commit()
+
         return {"id": post.id, "status": post_status}
 
     except Exception as e:
@@ -430,7 +443,7 @@ GROK_API_KEY = os.getenv("GROK_API_KEY")
 GROK_API_BASE = os.getenv("GROK_API_BASE")
 
 hashtag_api = TyakkaiHashtagAPI(
-    model_name="llama3-70b-8192",
+    model_name="groq/llama-3.1-8b-instant",
     api_key=GROK_API_KEY,
     api_base=GROK_API_BASE
 )
@@ -461,6 +474,7 @@ async def generate_hashtags_api(
         hashtags = [h if h.startswith("#") else f"#{h}" for h in hashtags]
         return {"hashtags": hashtags}
     except Exception as e:
+        print("❌ Hashtag generation error:", e)
         raise HTTPException(status_code=500, detail=str(e))
 
 # 8. Notification Endpoints
